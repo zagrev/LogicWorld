@@ -1,7 +1,7 @@
 /**
  *
  */
-package com.minethurn.clausal;
+package com.minethurn.logicworld.clausal;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -12,6 +12,10 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 
 import org.junit.Test;
+
+import com.minethurn.logicworld.clausal.LogicalParser;
+import com.minethurn.logicworld.clausal.LogicalWorld;
+import com.minethurn.logicworld.clausal.LogicalWorldPrinter;
 
 /**
  *

@@ -1,7 +1,7 @@
 /**
  *
  */
-package com.minethurn.clausal;
+package com.minethurn.logicworld.clausal;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;

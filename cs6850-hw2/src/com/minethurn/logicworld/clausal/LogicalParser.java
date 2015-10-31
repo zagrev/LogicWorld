@@ -1,7 +1,7 @@
 /**
  *
  */
-package com.minethurn.clausal;
+package com.minethurn.logicworld.clausal;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -78,6 +78,7 @@ public class LogicalParser
             context.addChar(c);
          }
       }
+      context.endWord();
 
       return context.world;
 

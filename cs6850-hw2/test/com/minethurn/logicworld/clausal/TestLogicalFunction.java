@@ -1,7 +1,7 @@
 /**
  *
  */
-package com.minethurn.clausal;
+package com.minethurn.logicworld.clausal;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -10,6 +10,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+
+import com.minethurn.logicworld.clausal.LogicalFunction;
+import com.minethurn.logicworld.clausal.LogicalUnit;
+import com.minethurn.logicworld.clausal.LogicalVariable;
 
 /**
  *

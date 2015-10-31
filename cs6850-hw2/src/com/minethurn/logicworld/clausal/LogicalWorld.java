@@ -1,10 +1,11 @@
 /**
  *
  */
-package com.minethurn.clausal;
+package com.minethurn.logicworld.clausal;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * The logical world for manipulation
@@ -22,6 +23,14 @@ public class LogicalWorld implements Iterable<LogicalClause>
    {
       clauses.add(newClause);
       return this;
+   }
+
+   /**
+    * @param newClauses
+    */
+   public void addAll(final List<LogicalClause> newClauses)
+   {
+      clauses.addAll(newClauses);
    }
 
    /**

@@ -1,7 +1,7 @@
 /**
  *
  */
-package com.minethurn.clausal;
+package com.minethurn.logicworld.clausal;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -12,7 +12,7 @@ import java.util.Iterator;
 public class LogicalClause implements Iterable<LogicalUnit>
 {
    /** the functions in the logical clause */
-   private final ArrayList<LogicalUnit> units;
+   private ArrayList<LogicalUnit> units;
 
    /**
     * @param functions
@@ -39,6 +39,14 @@ public class LogicalClause implements Iterable<LogicalUnit>
    public void add(final LogicalUnit newFunction)
    {
       units.add(newFunction);
+   }
+
+   /**
+    * @param src
+    */
+   public void addAll(final LogicalClause src)
+   {
+      units.addAll(src.units);
    }
 
    /*
@@ -86,6 +94,14 @@ public class LogicalClause implements Iterable<LogicalUnit>
       return units.get(i);
    }
 
+   /**
+    * @return the units
+    */
+   public ArrayList<LogicalUnit> getUnits()
+   {
+      return units;
+   }
+
    /*
     * (non-Javadoc)
     * @see java.lang.Object#hashCode()
@@ -115,6 +131,15 @@ public class LogicalClause implements Iterable<LogicalUnit>
    public Iterator<LogicalUnit> iterator()
    {
       return units.iterator();
+   }
+
+   /**
+    * @param units
+    *           the units to set
+    */
+   public void setUnits(final ArrayList<LogicalUnit> units)
+   {
+      this.units = units;
    }
 
    /**
