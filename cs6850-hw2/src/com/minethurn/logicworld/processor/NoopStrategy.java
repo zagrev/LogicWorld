@@ -19,7 +19,7 @@ public class NoopStrategy implements ILogicStrategy
     * @see com.minethurn.logicworld.processor.ILogicStrategy#finalize(com.minethurn.logicworld.clausal.LogicalWorld)
     */
    @Override
-   public void finalize(final LogicalWorld world)
+   public void finalize(final LogicalWorld delta, final LogicalWorld gamma)
    {
       // do nothing
    }
@@ -29,7 +29,7 @@ public class NoopStrategy implements ILogicStrategy
     * @see com.minethurn.logicworld.processor.ILogicStrategy#initialize(com.minethurn.logicworld.clausal.LogicalWorld)
     */
    @Override
-   public void initialize(final LogicalWorld world)
+   public void initialize(final LogicalWorld delta, final LogicalWorld gamma)
    {
       // do nothing
    }
@@ -39,7 +39,7 @@ public class NoopStrategy implements ILogicStrategy
     * @see com.minethurn.logicworld.processor.ILogicStrategy#step(com.minethurn.logicworld.clausal.LogicalWorld)
     */
    @Override
-   public List<LogicalClause> step(final LogicalWorld world)
+   public List<LogicalClause> step()
    {
       return null;
    }

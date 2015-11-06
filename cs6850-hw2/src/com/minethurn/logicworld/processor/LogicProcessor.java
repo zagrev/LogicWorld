@@ -105,12 +105,14 @@ public class LogicProcessor
       /**
        * from the original data set
        */
-      DELTA, /**
-              * from the query data set
-              */
-      GAMMA, /**
-              * derived by the strategy
-              */
+      DELTA,
+      /**
+       * from the query data set
+       */
+      GAMMA,
+      /**
+       * derived by the strategy
+       */
       DERIVED
    }
 
@@ -197,11 +199,13 @@ public class LogicProcessor
 
    /** the base set of rules in the problem space */
    LogicalWorld delta;
+
    /** the question we are trying to answer */
    LogicalWorld gamma;
 
    /** the current state of the derivation */
    LogicalWorld derivedWorld;
+
    /** the steps created during the derivation */
    ArrayList<DerivationLine> derivation;
 
@@ -242,30 +246,38 @@ public class LogicProcessor
       }
 
       derivedWorld = new LogicalWorld();
+      int count = 1;
 
       // combine the worlds
       for (final LogicalClause d : delta)
       {
          derivedWorld.add(d);
          derivation.add(new DerivationLine(d, DerivationLineType.DELTA));
+         System.out.println(String.format("%-4d %-30s %s", Integer.valueOf(count++), d.toString(), "D"));
       }
       for (final LogicalClause g : gamma)
       {
          derivedWorld.add(g);
          derivation.add(new DerivationLine(g, DerivationLineType.GAMMA));
+         System.out.println(String.format("%-4d %-30s %s", Integer.valueOf(count++), g.toString(), "G"));
       }
 
-      strategy.initialize(derivedWorld);
+      strategy.initialize(delta, gamma);
 
-      List<LogicalClause> newClauses = strategy.step(derivedWorld);
+      List<LogicalClause> newClauses = strategy.step();
       while (newClauses != null && !newClauses.isEmpty())
       {
+         for (final LogicalClause c : newClauses)
+         {
+            System.out.println(String.format("%-4d %-30s %s", Integer.valueOf(count++), c.toString(), ""));
+         }
          derivedWorld.addAll(newClauses);
          derivation.add(new DerivationLine(newClauses, DerivationLineType.DERIVED));
 
-         newClauses = strategy.step(derivedWorld);
+         newClauses = strategy.step();
       }
-      strategy.finalize(derivedWorld);
+
+      strategy.finalize(delta, gamma);
    }
 
    /**

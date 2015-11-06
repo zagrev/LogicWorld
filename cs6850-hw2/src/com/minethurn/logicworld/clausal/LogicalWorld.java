@@ -13,7 +13,7 @@ import java.util.List;
 public class LogicalWorld implements Iterable<LogicalClause>
 {
    /** the truth clauses in this logical world */
-   private final ArrayList<LogicalClause> clauses = new ArrayList<>();
+   private ArrayList<LogicalClause> clauses = new ArrayList<>();
 
    /**
     * @param newClause
@@ -42,6 +42,14 @@ public class LogicalWorld implements Iterable<LogicalClause>
       return clauses.get(index);
    }
 
+   /**
+    * @return the clauses
+    */
+   public ArrayList<LogicalClause> getClauses()
+   {
+      return clauses;
+   }
+
    /*
     * (non-Javadoc)
     * @see java.lang.Iterable#iterator()
@@ -50,6 +58,15 @@ public class LogicalWorld implements Iterable<LogicalClause>
    public Iterator<LogicalClause> iterator()
    {
       return clauses.iterator();
+   }
+
+   /**
+    * @param clauses
+    *           the clauses to set
+    */
+   public void setClauses(final ArrayList<LogicalClause> clauses)
+   {
+      this.clauses = clauses;
    }
 
    /**
