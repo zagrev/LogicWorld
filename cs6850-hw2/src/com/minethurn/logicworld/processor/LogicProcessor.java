@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -28,73 +27,9 @@ import com.minethurn.logicworld.clausal.LogicalWorldPrinter;
 public class LogicProcessor
 {
    /**
-    * how the line was derived and the order it was derived
+    * 
     */
-   public class DerivationLine
-   {
-      /** the clauses derived from this step */
-      private ArrayList<LogicalClause> clauses;
-      /** where the clauses came from */
-      private DerivationLineType type;
-
-      /**
-       * @param newClauses
-       * @param derived
-       */
-      public DerivationLine(final List<LogicalClause> newClauses, final DerivationLineType derived)
-      {
-         super();
-         this.clauses = new ArrayList<>(newClauses);
-         this.type = derived;
-      }
-
-      /**
-       * @param clause
-       * @param type
-       */
-      public DerivationLine(final LogicalClause clause, final DerivationLineType type)
-      {
-         super();
-         this.clauses = new ArrayList<>();
-
-         this.clauses.add(clause);
-         this.type = type;
-      }
-
-      /**
-       * @return the clauses
-       */
-      public ArrayList<LogicalClause> getClauses()
-      {
-         return clauses;
-      }
-
-      /**
-       * @return the type
-       */
-      public DerivationLineType getType()
-      {
-         return type;
-      }
-
-      /**
-       * @param clauses
-       *           the clauses to set
-       */
-      public void setClauses(final ArrayList<LogicalClause> clauses)
-      {
-         this.clauses = clauses;
-      }
-
-      /**
-       * @param type
-       *           the type to set
-       */
-      public void setType(final DerivationLineType type)
-      {
-         this.type = type;
-      }
-   }
+   private static final int MAX_COUNT = 100;
 
    /**
     * whether the clause is from the original set of statements (delta), the query statements (gamma), or derived by the
@@ -264,17 +199,18 @@ public class LogicProcessor
 
       strategy.initialize(delta, gamma);
 
-      List<LogicalClause> newClauses = strategy.step();
-      while (newClauses != null && !newClauses.isEmpty())
+      DerivationLine newLine = strategy.step();
+      while (newLine != null && !newLine.getClauses().isEmpty() && count < MAX_COUNT)
       {
-         for (final LogicalClause c : newClauses)
+         for (final LogicalClause c : newLine.getClauses())
          {
-            System.out.println(String.format("%-4d %-30s %s", Integer.valueOf(count++), c.toString(), ""));
+            System.out.println(String.format("%-4d %-30s %d, %d", Integer.valueOf(count++), c.toString(),
+                  Integer.valueOf(newLine.getLeftIndex() + 1), Integer.valueOf(newLine.getRightIndex() + 1)));
          }
-         derivedWorld.addAll(newClauses);
-         derivation.add(new DerivationLine(newClauses, DerivationLineType.DERIVED));
+         derivedWorld.addAll(newLine.getClauses());
+         derivation.add(newLine);
 
-         newClauses = strategy.step();
+         newLine = strategy.step();
       }
 
       strategy.finalize(delta, gamma);

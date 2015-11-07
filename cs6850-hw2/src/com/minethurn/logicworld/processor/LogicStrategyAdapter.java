@@ -50,11 +50,11 @@ public abstract class LogicStrategyAdapter implements ILogicStrategy
    @Override
    public void initialize(final LogicalWorld base, final LogicalWorld refutation)
    {
-      this.delta = new LogicalWorld();
-      this.delta.addAll(base.getClauses());
+      delta = new LogicalWorld();
+      delta.addAll(base.getClauses());
 
-      this.gamma = new LogicalWorld();
-      this.gamma.addAll(refutation.getClauses());
+      gamma = new LogicalWorld();
+      gamma.addAll(refutation.getClauses());
    }
 
    /**

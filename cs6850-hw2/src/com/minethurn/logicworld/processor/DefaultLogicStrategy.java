@@ -3,11 +3,9 @@
  */
 package com.minethurn.logicworld.processor;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.List;
 
 import com.minethurn.logicworld.clausal.LogicalClause;
 import com.minethurn.logicworld.clausal.LogicalUnit;
@@ -40,9 +38,9 @@ public class DefaultLogicStrategy extends LogicStrategyAdapter
     * @see com.minethurn.logicworld.processor.ILogicStrategy#step(com.minethurn.logicworld.clausal.LogicalWorld)
     */
    @Override
-   public List<LogicalClause> step()
+   public DerivationLine step()
    {
-      final ArrayList<LogicalClause> results = new ArrayList<>();
+      final DerivationLine line = new DerivationLine();
 
       // if the dest is larger than the world, increment the source and reset the dest
       if (gammaIndex >= getGamma().size())
@@ -58,7 +56,7 @@ public class DefaultLogicStrategy extends LogicStrategyAdapter
 
          if (src.isEmpty() || dest.isEmpty())
          {
-            return results;
+            return null;
          }
 
          // this should be the combination of the clauses
@@ -134,11 +132,13 @@ public class DefaultLogicStrategy extends LogicStrategyAdapter
          }
          if (!newClause.equals(src) && !newClause.equals(dest))
          {
-            results.add(newClause);
+            line.getClauses().add(newClause);
+            line.setLeftIndex(deltaIndex);
+            line.setRightIndex(gammaIndex);
          }
          gammaIndex += 1;
       }
-      return results;
+      return line;
    }
 
 }

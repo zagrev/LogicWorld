@@ -11,10 +11,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.minethurn.logicworld.clausal.LogicalFunction;
-import com.minethurn.logicworld.clausal.LogicalUnit;
-import com.minethurn.logicworld.clausal.LogicalVariable;
-
 /**
  *
  */
@@ -34,6 +30,35 @@ public class TestLogicalFunction
       assertTrue("F1 should be equal to F2", f1.complement(f2));
       assertFalse("F1 should be equal to F1", f1.complement(f1));
       assertFalse("F1 should be equal to F1", f1.complement(f3));
+   }
+
+   /**
+    * test the basic create and display of a function
+    */
+   @Test
+   public void testComplementaryFunctions()
+   {
+      final LogicalUnit f1 = new LogicalFunction("Func()");
+      final LogicalUnit f2 = new LogicalFunction("Func()");
+      f2.setPositive(false);
+
+      assertTrue("F1 should be complementary to F2", f1.complement(f2));
+      assertFalse("F1 should be complementary to F1", f1.complement(f1));
+      assertFalse("F1 should NOT be complementary to F1", f1.complement(new Object()));
+   }
+
+   /**
+    *
+    */
+   public void testComplementaryMixedVariable()
+   {
+      final LogicalVariable var = new LogicalVariable("V");
+      final LogicalUnit f1 = new LogicalFunction("Func");
+      final LogicalUnit f2 = new LogicalFunction("Func", var);
+      f2.setPositive(false);
+
+      assertNotEquals("F1 should be complementary to F2", f1, f2);
+      assertEquals("F1 should be equals to F1", f1, f1);
    }
 
    /**
@@ -154,6 +179,20 @@ public class TestLogicalFunction
    }
 
    /**
+    *
+    */
+   public void testEqualsMixedVariable()
+   {
+      final LogicalVariable var = new LogicalVariable("V");
+      final LogicalUnit f1 = new LogicalFunction("Func");
+      final LogicalUnit f2 = new LogicalFunction("Func", var);
+
+      assertNotEquals("F1 should NOT be equals to F2", f1, f2);
+      assertNotEquals("F2 should NOT be equals to F1", f2, f1);
+      assertEquals("F1 should be equals to F1", f1, f1);
+   }
+
+   /**
     * test the basic create and display of a function
     */
    @Test
@@ -163,6 +202,18 @@ public class TestLogicalFunction
       final LogicalUnit f2 = new LogicalFunction("Func");
 
       assertEquals("F1 should be equal to F2", f1, f2);
+   }
+
+   /**
+    * test the basic create and display of a function
+    */
+   @Test
+   public void testEqualsRandomObject()
+   {
+      final LogicalUnit f1 = new LogicalFunction("Func");
+
+      final Object obj = new Object();
+      assertNotEquals("F1 should be equal to random object", f1, obj);
    }
 
    /**

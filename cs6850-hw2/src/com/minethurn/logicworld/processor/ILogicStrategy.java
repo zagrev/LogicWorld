@@ -3,9 +3,6 @@
  */
 package com.minethurn.logicworld.processor;
 
-import java.util.List;
-
-import com.minethurn.logicworld.clausal.LogicalClause;
 import com.minethurn.logicworld.clausal.LogicalWorld;
 
 /**
@@ -40,5 +37,5 @@ public interface ILogicStrategy
     *
     * @return any new clauses that were created by this processing step
     */
-   List<LogicalClause> step();
+   DerivationLine step();
 }

@@ -78,4 +78,19 @@ public class LogicalWorld implements Iterable<LogicalClause>
    {
       return clauses.size();
    }
+
+   /*
+    * (non-Javadoc)
+    * @see java.lang.Object#toString()
+    */
+   @Override
+   public String toString()
+   {
+      final StringBuilder b = new StringBuilder();
+      for (final LogicalClause c : clauses)
+      {
+         b.append(c.toString());
+      }
+      return b.toString();
+   }
 }

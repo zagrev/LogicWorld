@@ -89,6 +89,22 @@ public class TestLogicalProcessor
     * @throws IOException
     */
    @Test
+   public void testGetStrategry() throws IOException
+   {
+      final LogicalWorld delta = LogicalParser.parse("{ A }");
+      final LogicalWorld gamma = LogicalParser.parse("{ A }");
+
+      final LogicProcessor processor = new LogicProcessor(delta, gamma);
+      final ILogicStrategy s = new NoopStrategy();
+      processor.setStrategy(s);
+
+      assertEquals("Should have gotten the same processor back", s, processor.getStrategy());
+   }
+
+   /**
+    * @throws IOException
+    */
+   @Test
    public void testNoopProcessor() throws IOException
    {
       final LogicalWorld delta = LogicalParser.parse("{ A }");
@@ -100,5 +116,45 @@ public class TestLogicalProcessor
 
       assertEquals("should have the original clauses", 2, processor.derivation.size());
       assertEquals("world size should be 2", 2, processor.derivedWorld.size());
+   }
+
+   /**
+    *
+    */
+   @Test(expected = IllegalStateException.class)
+   public void testNullDeltaWorld()
+   {
+      final LogicalWorld w = new LogicalWorld();
+      final LogicProcessor procesor = new LogicProcessor(null, w);
+
+      final ILogicStrategy s = new DefaultLogicStrategy();
+      procesor.setStrategy(s);
+
+      procesor.process();
+   }
+
+   /**
+    *
+    */
+   @Test(expected = IllegalStateException.class)
+   public void testNullGammaWorld()
+   {
+      final LogicalWorld w = new LogicalWorld();
+      final LogicProcessor procesor = new LogicProcessor(w, null);
+
+      final ILogicStrategy s = new DefaultLogicStrategy();
+      procesor.setStrategy(s);
+
+      procesor.process();
+   }
+
+   /**
+    *
+    */
+   @Test(expected = IllegalStateException.class)
+   public void testNullStrategy()
+   {
+      final LogicProcessor procesor = new LogicProcessor(null, null);
+      procesor.process();
    }
 }
