@@ -11,6 +11,8 @@ import org.junit.Test;
 
 import com.minethurn.logicworld.clausal.LogicalParser;
 import com.minethurn.logicworld.clausal.LogicalWorld;
+import com.minethurn.logicworld.strategy.DefaultLogicStrategy;
+import com.minethurn.logicworld.strategy.ILogicStrategy;
 
 /**
  *

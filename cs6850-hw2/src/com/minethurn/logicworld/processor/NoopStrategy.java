@@ -4,6 +4,7 @@
 package com.minethurn.logicworld.processor;
 
 import com.minethurn.logicworld.clausal.LogicalWorld;
+import com.minethurn.logicworld.strategy.ILogicStrategy;
 
 /**
  *

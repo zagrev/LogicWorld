@@ -1,9 +1,10 @@
 /**
  *
  */
-package com.minethurn.logicworld.processor;
+package com.minethurn.logicworld.strategy;
 
 import com.minethurn.logicworld.clausal.LogicalWorld;
+import com.minethurn.logicworld.processor.DerivationLine;
 
 /**
  *

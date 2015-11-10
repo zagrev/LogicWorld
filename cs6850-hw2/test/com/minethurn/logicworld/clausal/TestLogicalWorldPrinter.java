@@ -13,10 +13,6 @@ import java.io.OutputStreamWriter;
 
 import org.junit.Test;
 
-import com.minethurn.logicworld.clausal.LogicalParser;
-import com.minethurn.logicworld.clausal.LogicalWorld;
-import com.minethurn.logicworld.clausal.LogicalWorldPrinter;
-
 /**
  *
  */
@@ -37,7 +33,8 @@ public class TestLogicalWorldPrinter
          LogicalWorldPrinter.print(writer, w);
          writer.close();
          out.close();
-         assertEquals("output should match input", input, out.toString());
+         final String updatedInput = input.replace("}", "}\n");
+         assertEquals("output should match input", updatedInput, out.toString());
       }
    }
 

@@ -20,17 +20,14 @@ import com.minethurn.logicworld.clausal.LogicalClause;
 import com.minethurn.logicworld.clausal.LogicalParser;
 import com.minethurn.logicworld.clausal.LogicalWorld;
 import com.minethurn.logicworld.clausal.LogicalWorldPrinter;
+import com.minethurn.logicworld.strategy.DefaultLogicStrategy;
+import com.minethurn.logicworld.strategy.ILogicStrategy;
 
 /**
  *
  */
 public class LogicProcessor
 {
-   /**
-    * 
-    */
-   private static final int MAX_COUNT = 100;
-
    /**
     * whether the clause is from the original set of statements (delta), the query statements (gamma), or derived by the
     * strategy
@@ -52,6 +49,21 @@ public class LogicProcessor
    }
 
    /**
+    * the output format for a derived line (with line number pairs)
+    */
+   private static final String DERIVED_FORMAT = "%-4d %-40s %d, %d";
+
+   /**
+    * The output format for a premise line (with delta for gamma)
+    */
+   private static final String LINE_FORMAT = "%-4d %-40s %s";
+
+   /**
+    *
+    */
+   private static final int MAX_COUNT = 100;
+
+   /**
     * start up a logical derivedWorld
     *
     * @param args
@@ -60,14 +72,25 @@ public class LogicProcessor
     */
    public static void main(final String[] args) throws IOException
    {
-      String deltaFile = "delta.world";
-      String gammaFile = "gamma.world";
+      String deltaFile = "hw3delta.txt";
+      String gammaFile = "hw3gamma.txt";
       String strategyClass = DefaultLogicStrategy.class.getName();
       ILogicStrategy strategy = null;
+      boolean showUsage = false;
+      boolean removeTautologies = false;
+      boolean removePureLiterals = false;
 
       final Options options = new Options();
+      options.addOption("h", "help", false, "Show the usage help");
       options.addOption("d", "delta", true, "The file with the original database of statements");
       options.addOption("g", "gamma", true, "The file with the query clauses");
+      options.addOption("s", "strategy", true,
+            "The strategy to use to find resolution.  Can be one of: \n"
+                  + "com.minethurn.logicworld.strategy.DefaultLogicStrategy, \n"
+                  + "com.minethurn.logicworld.strategy.DeletionResolutionStrategy, \n"
+                  + "com.minethurn.logicworld.strategy.UnitResolutionStrategy");
+      options.addOption("t", "rmTautology", false, "Remove tautologies before processing");
+      options.addOption("l", "rmLiterals", false, "Remove pure literals before processing");
 
       try
       {
@@ -86,6 +109,19 @@ public class LogicProcessor
          {
             strategyClass = cmdLine.getOptionValue("strategy");
          }
+         if (cmdLine.hasOption("help"))
+         {
+            showUsage = true;
+         }
+         if (cmdLine.hasOption("rmTautology"))
+         {
+            removeTautologies = true;
+         }
+         if (cmdLine.hasOption("rmLiterals"))
+         {
+            removePureLiterals = true;
+         }
+
          final Class<?> cls = Class.forName(strategyClass);
          strategy = (ILogicStrategy) cls.newInstance();
 
@@ -101,7 +137,7 @@ public class LogicProcessor
       }
       catch (final ClassCastException e)
       {
-         System.err.println("Strategy class does not implemnt ILogicStrategy");
+         System.err.println("Strategy class does not implement ILogicStrategy");
          return;
       }
       catch (final ClassNotFoundException | IllegalAccessException | InstantiationException e)
@@ -109,7 +145,12 @@ public class LogicProcessor
          System.err.println("Strategy class not found: " + strategyClass);
          return;
       }
-
+      if (showUsage)
+      {
+         final HelpFormatter formatter = new HelpFormatter();
+         formatter.printHelp("process", options);
+         return;
+      }
       LogicalWorld delta = null;
       LogicalWorld gamma = null;
 
@@ -122,13 +163,17 @@ public class LogicProcessor
          gamma = LogicalParser.parse(in);
       }
 
-      System.out.println("Delta world:");
-      LogicalWorldPrinter.print(new OutputStreamWriter(System.out), delta);
-      System.out.println("Gamma world:");
-      LogicalWorldPrinter.print(new OutputStreamWriter(System.out), gamma);
+      final OutputStreamWriter output = new OutputStreamWriter(System.out);
+      output.write("Delta world:");
+      LogicalWorldPrinter.print(output, delta);
+      output.write("Gamma world:");
+      LogicalWorldPrinter.print(output, gamma);
 
       final LogicProcessor processor = new LogicProcessor(delta, gamma);
       processor.setStrategy(strategy);
+      processor.setRemovePureLiterals(removePureLiterals);
+      processor.setRemoveTautologies(removeTautologies);
+
       processor.process();
    }
 
@@ -147,6 +192,12 @@ public class LogicProcessor
    /** the strategy to use while processing */
    private ILogicStrategy strategy;
 
+   /** apply pure literal removal before processing */
+   private boolean removePureLiterals;
+
+   /** remove tautologies before processing */
+   private boolean removeTautologies;
+
    /**
     * @param delta
     * @param gamma
@@ -156,6 +207,39 @@ public class LogicProcessor
       this.delta = delta;
       this.gamma = gamma;
       derivation = new ArrayList<>();
+      setRemovePureLiterals(false);
+   }
+
+   /**
+    * @return the delta
+    */
+   public LogicalWorld getDelta()
+   {
+      return delta;
+   }
+
+   /**
+    * @return the derivation
+    */
+   public ArrayList<DerivationLine> getDerivation()
+   {
+      return derivation;
+   }
+
+   /**
+    * @return the derivedWorld
+    */
+   public LogicalWorld getDerivedWorld()
+   {
+      return derivedWorld;
+   }
+
+   /**
+    * @return the gamma
+    */
+   public LogicalWorld getGamma()
+   {
+      return gamma;
    }
 
    /**
@@ -164,6 +248,22 @@ public class LogicProcessor
    public ILogicStrategy getStrategy()
    {
       return strategy;
+   }
+
+   /**
+    * @return the removePureLiterals
+    */
+   public boolean isRemovePureLiterals()
+   {
+      return removePureLiterals;
+   }
+
+   /**
+    * @return the removeTautologies
+    */
+   public boolean isRemoveTautologies()
+   {
+      return removeTautologies;
    }
 
    /**
@@ -183,18 +283,35 @@ public class LogicProcessor
       derivedWorld = new LogicalWorld();
       int count = 1;
 
+      if (removePureLiterals)
+      {
+         PureLiteralRemoval.removePureLiterals(delta);
+      }
+      if (removeTautologies)
+      {
+         TautologyRemoval.removeTautologies(delta);
+      }
       // combine the worlds
       for (final LogicalClause d : delta)
       {
          derivedWorld.add(d);
          derivation.add(new DerivationLine(d, DerivationLineType.DELTA));
-         System.out.println(String.format("%-4d %-30s %s", Integer.valueOf(count++), d.toString(), "D"));
+         System.out.println(String.format(LINE_FORMAT, Integer.valueOf(count++), d.toString(), "D"));
+      }
+
+      if (removePureLiterals)
+      {
+         PureLiteralRemoval.removePureLiterals(gamma);
+      }
+      if (removeTautologies)
+      {
+         TautologyRemoval.removeTautologies(gamma);
       }
       for (final LogicalClause g : gamma)
       {
          derivedWorld.add(g);
          derivation.add(new DerivationLine(g, DerivationLineType.GAMMA));
-         System.out.println(String.format("%-4d %-30s %s", Integer.valueOf(count++), g.toString(), "G"));
+         System.out.println(String.format(LINE_FORMAT, Integer.valueOf(count++), g.toString(), "G"));
       }
 
       strategy.initialize(delta, gamma);
@@ -204,7 +321,7 @@ public class LogicProcessor
       {
          for (final LogicalClause c : newLine.getClauses())
          {
-            System.out.println(String.format("%-4d %-30s %d, %d", Integer.valueOf(count++), c.toString(),
+            System.out.println(String.format(DERIVED_FORMAT, Integer.valueOf(count++), c.toString(),
                   Integer.valueOf(newLine.getLeftIndex() + 1), Integer.valueOf(newLine.getRightIndex() + 1)));
          }
          derivedWorld.addAll(newLine.getClauses());
@@ -214,6 +331,42 @@ public class LogicProcessor
       }
 
       strategy.finalize(delta, gamma);
+   }
+
+   /**
+    * @param derivation
+    *           the derivation to set
+    */
+   public void setDerivation(final ArrayList<DerivationLine> derivation)
+   {
+      this.derivation = derivation;
+   }
+
+   /**
+    * @param derivedWorld
+    *           the derivedWorld to set
+    */
+   public void setDerivedWorld(final LogicalWorld derivedWorld)
+   {
+      this.derivedWorld = derivedWorld;
+   }
+
+   /**
+    * @param removePureLiterals
+    *           the removePureLiterals to set
+    */
+   public void setRemovePureLiterals(final boolean removePureLiterals)
+   {
+      this.removePureLiterals = removePureLiterals;
+   }
+
+   /**
+    * @param removeTautologies
+    *           the removeTautologies to set
+    */
+   public void setRemoveTautologies(final boolean removeTautologies)
+   {
+      this.removeTautologies = removeTautologies;
    }
 
    /**

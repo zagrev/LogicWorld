@@ -3,10 +3,12 @@
  */
 package com.minethurn.logicworld.clausal;
 
+import java.util.HashMap;
+
 /**
  *
  */
-public class LogicalUnit
+public abstract class LogicalUnit
 {
 
    /** the name of this logical variable */
@@ -130,6 +132,16 @@ public class LogicalUnit
    {
       return positive;
    }
+
+   /**
+    * map the variables of this logical unit to new names and return a copy with the new names. If there is no mapping
+    * for this unit, then this will return a copy of this unit without any name changes.
+    *
+    * @param mapping
+    *           the mapping to use
+    * @return a copy of this logical unit with the new names
+    */
+   public abstract LogicalUnit map(HashMap<String, String> mapping);
 
    /**
     * @param name

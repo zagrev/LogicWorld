@@ -9,6 +9,8 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashMap;
+
 import org.junit.Test;
 
 /**
@@ -214,6 +216,97 @@ public class TestLogicalFunction
 
       final Object obj = new Object();
       assertNotEquals("F1 should be equal to random object", f1, obj);
+   }
+
+   /**
+    *
+    */
+   @SuppressWarnings("boxing")
+   @Test
+   public void testMapping()
+   {
+      final HashMap<String, String> mapping = new HashMap<>();
+      mapping.put("A", "B");
+
+      final LogicalVariable a = new LogicalVariable("A");
+      final LogicalFunction func = new LogicalFunction("Func", a);
+
+      final LogicalUnit u = func.map(mapping);
+      assertNotNull(u);
+      assertEquals("Func", u.getName());
+      assertTrue(u instanceof LogicalFunction);
+
+      final LogicalFunction f = (LogicalFunction) u;
+
+      final LogicalVariable b = f.get(0);
+      assertNotEquals("A should NOT be equal to B", a, b);
+      assertEquals("Mapped variable should be positive like the original vaiable", a.isPositive(), b.isPositive());
+   }
+
+   /**
+    *
+    */
+   @SuppressWarnings("boxing")
+   @Test
+   public void testMappingMissing()
+   {
+      final HashMap<String, String> mapping = new HashMap<>();
+
+      final LogicalVariable a = new LogicalVariable("A");
+
+      final LogicalUnit u = a.map(mapping);
+      assertNotNull(u);
+      assertEquals("A", u.getName());
+      assertTrue(u instanceof LogicalVariable);
+
+      final LogicalVariable b = (LogicalVariable) u;
+      assertEquals("A should equal to B", a, b);
+      assertEquals("Mapped variable should be positive like the original vaiable", a.isPositive(), b.isPositive());
+   }
+
+   /**
+    *
+    */
+   @SuppressWarnings("boxing")
+   @Test
+   public void testMappingMissingNegative()
+   {
+      final HashMap<String, String> mapping = new HashMap<>();
+
+      final LogicalVariable a = new LogicalVariable("A");
+      a.setPositive(false);
+
+      final LogicalUnit u = a.map(mapping);
+      assertNotNull(u);
+      assertEquals("A", u.getName());
+      assertTrue(u instanceof LogicalVariable);
+
+      final LogicalVariable b = (LogicalVariable) u;
+      assertEquals("A should equal to B", a, b);
+      assertEquals("Mapped variable should be positive like the original vaiable", a.isPositive(), b.isPositive());
+   }
+
+   /**
+    *
+    */
+   @SuppressWarnings("boxing")
+   @Test
+   public void testMappingNegative()
+   {
+      final HashMap<String, String> mapping = new HashMap<>();
+      mapping.put("A", "B");
+
+      final LogicalVariable a = new LogicalVariable("A");
+      a.setPositive(false);
+
+      final LogicalUnit u = a.map(mapping);
+      assertNotNull(u);
+      assertEquals("B", u.getName());
+      assertTrue(u instanceof LogicalVariable);
+
+      final LogicalVariable b = (LogicalVariable) u;
+      assertNotEquals("A should NOT be equal to B", a, b);
+      assertEquals("Mapped variable should be positive like the original vaiable", a.isPositive(), b.isPositive());
    }
 
    /**

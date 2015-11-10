@@ -1,7 +1,7 @@
 /**
  *
  */
-package com.minethurn.logicworld.processor;
+package com.minethurn.logicworld.strategy;
 
 import static org.junit.Assert.assertEquals;
 
@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import com.minethurn.logicworld.clausal.LogicalParser;
 import com.minethurn.logicworld.clausal.LogicalWorld;
+import com.minethurn.logicworld.processor.LogicProcessor;
 
 /**
  *
@@ -27,13 +28,13 @@ public class TestUnitResolutionStrategy
       final LogicalWorld x = LogicalParser.parse("{¬A}");
       final LogicProcessor processor = new LogicProcessor(w, x);
 
-      final UnitResolutionStrategy strategy = new UnitResolutionStrategy();
+      final LogicStrategyAdapter strategy = new UnitResolutionStrategy();
       processor.setStrategy(strategy);
 
       processor.process();
 
-      assertEquals(3, processor.derivedWorld.size());
-      assertEquals("{ A }{ ¬A }{ }", processor.derivedWorld.toString());
+      assertEquals(3, processor.getDerivedWorld().size());
+      assertEquals("{ A }{ ¬A }{ }", processor.getDerivedWorld().toString());
    }
 
    /**
@@ -45,12 +46,12 @@ public class TestUnitResolutionStrategy
       final LogicalWorld w = new LogicalWorld();
       final LogicProcessor processor = new LogicProcessor(w, w);
 
-      final UnitResolutionStrategy strategy = new UnitResolutionStrategy();
+      final LogicStrategyAdapter strategy = new UnitResolutionStrategy();
       processor.setStrategy(strategy);
 
       processor.process();
 
-      assertEquals(0, processor.derivedWorld.size());
+      assertEquals(0, processor.getDerivedWorld().size());
    }
 
    /**
@@ -62,12 +63,12 @@ public class TestUnitResolutionStrategy
       final LogicalWorld w = LogicalParser.parse("{}");
       final LogicProcessor processor = new LogicProcessor(w, w);
 
-      final UnitResolutionStrategy strategy = new UnitResolutionStrategy();
+      final LogicStrategyAdapter strategy = new UnitResolutionStrategy();
       processor.setStrategy(strategy);
 
       processor.process();
 
-      assertEquals(2, processor.derivedWorld.size());
+      assertEquals(2, processor.getDerivedWorld().size());
    }
 
    /**
@@ -80,14 +81,14 @@ public class TestUnitResolutionStrategy
       final LogicalWorld g = LogicalParser.parse("{¬A}{B, ¬P}");
       final LogicProcessor processor = new LogicProcessor(d, g);
 
-      final UnitResolutionStrategy strategy = new UnitResolutionStrategy();
+      final LogicStrategyAdapter strategy = new UnitResolutionStrategy();
       processor.setStrategy(strategy);
 
       processor.process();
 
-      assertEquals(10, processor.derivedWorld.size());
+      assertEquals(10, processor.getDerivedWorld().size());
       assertEquals("{ A, P }{ ¬B }{ P }{ Q }{ ¬A }{ B, ¬P }{ ¬P }" + "{ B }{ }{ A }",
-            processor.derivedWorld.toString());
+            processor.getDerivedWorld().toString());
    }
 
    /**
@@ -100,13 +101,13 @@ public class TestUnitResolutionStrategy
       final LogicalWorld g = LogicalParser.parse("{¬A}{B}");
       final LogicProcessor processor = new LogicProcessor(d, g);
 
-      final UnitResolutionStrategy strategy = new UnitResolutionStrategy();
+      final LogicStrategyAdapter strategy = new UnitResolutionStrategy();
       processor.setStrategy(strategy);
 
       processor.process();
 
-      assertEquals(4, processor.derivedWorld.size());
-      assertEquals("{ A }{ ¬A }{ B }{ }", processor.derivedWorld.toString());
+      assertEquals(4, processor.getDerivedWorld().size());
+      assertEquals("{ A }{ ¬A }{ B }{ }", processor.getDerivedWorld().toString());
    }
 
    /**
@@ -119,13 +120,13 @@ public class TestUnitResolutionStrategy
       final LogicalWorld g = LogicalParser.parse("{¬A}{B}{¬A}");
       final LogicProcessor processor = new LogicProcessor(d, g);
 
-      final UnitResolutionStrategy strategy = new UnitResolutionStrategy();
+      final LogicStrategyAdapter strategy = new UnitResolutionStrategy();
       processor.setStrategy(strategy);
 
       processor.process();
 
-      assertEquals(5, processor.derivedWorld.size());
-      assertEquals("{ A }{ ¬A }{ B }{ ¬A }{ }", processor.derivedWorld.toString());
+      assertEquals(5, processor.getDerivedWorld().size());
+      assertEquals("{ A }{ ¬A }{ B }{ ¬A }{ }", processor.getDerivedWorld().toString());
    }
 
    /**
@@ -138,13 +139,13 @@ public class TestUnitResolutionStrategy
       final LogicalWorld g = LogicalParser.parse("{¬A}{B}{¬A}");
       final LogicProcessor processor = new LogicProcessor(d, g);
 
-      final UnitResolutionStrategy strategy = new UnitResolutionStrategy();
+      final LogicStrategyAdapter strategy = new UnitResolutionStrategy();
       processor.setStrategy(strategy);
 
       processor.process();
 
-      assertEquals(7, processor.derivedWorld.size());
-      assertEquals("{ A }{ ¬B }{ P }{ ¬A }{ B }{ ¬A }{ }", processor.derivedWorld.toString());
+      assertEquals(7, processor.getDerivedWorld().size());
+      assertEquals("{ A }{ ¬B }{ P }{ ¬A }{ B }{ ¬A }{ }", processor.getDerivedWorld().toString());
    }
 
    /**
@@ -157,13 +158,14 @@ public class TestUnitResolutionStrategy
       final LogicalWorld g = LogicalParser.parse("{¬A}{B, ¬P}{¬A}");
       final LogicProcessor processor = new LogicProcessor(d, g);
 
-      final UnitResolutionStrategy strategy = new UnitResolutionStrategy();
+      final LogicStrategyAdapter strategy = new UnitResolutionStrategy();
       processor.setStrategy(strategy);
 
       processor.process();
 
-      assertEquals("{ A }{ ¬B }{ P }{ Q }{ ¬A }{ B, ¬P }{ ¬A }" + "{ }{ ¬P }{ B }", processor.derivedWorld.toString());
-      assertEquals(10, processor.derivedWorld.size());
+      assertEquals("{ A }{ ¬B }{ P }{ Q }{ ¬A }{ B, ¬P }{ ¬A }" + "{ }{ ¬P }{ B }",
+            processor.getDerivedWorld().toString());
+      assertEquals(10, processor.getDerivedWorld().size());
    }
 
    /**
@@ -175,11 +177,11 @@ public class TestUnitResolutionStrategy
       final LogicalWorld w = LogicalParser.parse("{A}");
       final LogicProcessor processor = new LogicProcessor(w, w);
 
-      final UnitResolutionStrategy strategy = new UnitResolutionStrategy();
+      final LogicStrategyAdapter strategy = new UnitResolutionStrategy();
       processor.setStrategy(strategy);
 
       processor.process();
 
-      assertEquals(2, processor.derivedWorld.size());
+      assertEquals(2, processor.getDerivedWorld().size());
    }
 }

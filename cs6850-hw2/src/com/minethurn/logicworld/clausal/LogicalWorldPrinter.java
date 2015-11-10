@@ -4,7 +4,7 @@
 package com.minethurn.logicworld.clausal;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.Writer;
 
 /**
  *
@@ -21,21 +21,9 @@ public class LogicalWorldPrinter
     * @throws IOException
     *            if there is an error
     */
-   public static void print(final OutputStreamWriter out, final LogicalClause c) throws IOException
+   public static void print(final Writer out, final LogicalClause c) throws IOException
    {
-      boolean first = true;
-      out.write("{ ");
-      for (final LogicalUnit u : c)
-      {
-         if (!first)
-         {
-            out.write(", ");
-         }
-         first = false;
-
-         out.write(u.toString());
-      }
-      out.write(" }");
+      out.write(c.toString());
    }
 
    /**
@@ -48,7 +36,7 @@ public class LogicalWorldPrinter
     * @throws IOException
     *            on error
     */
-   public static void print(final OutputStreamWriter out, final LogicalUnit u) throws IOException
+   public static void print(final Writer out, final LogicalUnit u) throws IOException
    {
       out.write(u.toString());
    }
@@ -63,11 +51,12 @@ public class LogicalWorldPrinter
     * @throws IOException
     *            if we cannot write the world out
     */
-   public static void print(final OutputStreamWriter out, final LogicalWorld world) throws IOException
+   public static void print(final Writer out, final LogicalWorld world) throws IOException
    {
       for (final LogicalClause c : world)
       {
-         print(out, c);
+         out.write(c.toString());
+         out.write("\n");
       }
    }
 }

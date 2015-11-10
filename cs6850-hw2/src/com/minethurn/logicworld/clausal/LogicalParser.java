@@ -51,6 +51,7 @@ public class LogicalParser
             break;
 
          // whitespace ends names and comments
+         case '\r':
          case '\n':
             context.endWord();
             break;

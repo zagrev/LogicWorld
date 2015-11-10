@@ -1,11 +1,12 @@
 /**
  *
  */
-package com.minethurn.logicworld.processor;
+package com.minethurn.logicworld.strategy;
 
 import com.minethurn.logicworld.clausal.LogicalClause;
 import com.minethurn.logicworld.clausal.LogicalUnit;
 import com.minethurn.logicworld.clausal.LogicalWorld;
+import com.minethurn.logicworld.processor.DerivationLine;
 
 /**
  * Unit resolution strategy say only use single unit rules to compare
@@ -137,20 +138,12 @@ public class UnitResolutionStrategy extends LogicStrategyAdapter
                   }
                }
 
-               // only add units to the derivation if they don't already exist
-               boolean unique = true;
-               for (final LogicalClause derived : world)
-               {
-                  if (newClause.equals(derived))
-                  {
-                     unique = false;
-                  }
-               }
-               if (unique)
+               if (isUnique(world, newClause))
                {
                   world.add(newClause);
                   return line;
                }
+
             }
          }
       }

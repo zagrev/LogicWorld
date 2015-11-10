@@ -1,0 +1,11 @@
+{ ¬T(A), ¬Town(A) }
+{ ¬T(A), ¬Key(A) }
+{ ¬T(B), Key(C) }
+{ ¬T(C), Key(C) }
+{ ¬T(D), Key(B) }
+{ Friend(A,D) }
+{ ¬Like(B,C) }
+{ ¬Friend(x,y), Friend(y,x) }
+{ ¬Friend(x,y), Like(x,y) }
+{ ¬Like(x,y), Like(y,x) }
+{ Like(x,y), ¬Friend(x,y) }

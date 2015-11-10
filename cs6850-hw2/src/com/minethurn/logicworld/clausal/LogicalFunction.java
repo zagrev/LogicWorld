@@ -4,6 +4,7 @@
 package com.minethurn.logicworld.clausal;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  *
@@ -156,6 +157,25 @@ public class LogicalFunction extends LogicalUnit
       int result = super.hashCode();
       result = prime * result + (variables == null ? 0 : variables.hashCode());
       return result;
+   }
+
+   /*
+    * (non-Javadoc)
+    * @see com.minethurn.logicworld.clausal.LogicalUnit#map(java.util.HashMap)
+    */
+   @Override
+   public LogicalUnit map(final HashMap<String, String> mapping)
+   {
+      final LogicalFunction newFunction = new LogicalFunction(getName());
+      newFunction.setPositive(isPositive());
+
+      for (final LogicalVariable v : variables)
+      {
+         final LogicalVariable newVariable = (LogicalVariable) v.map(mapping);
+         newFunction.add(newVariable);
+      }
+
+      return newFunction;
    }
 
    /**

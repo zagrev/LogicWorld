@@ -1,8 +1,9 @@
 /**
  *
  */
-package com.minethurn.logicworld.processor;
+package com.minethurn.logicworld.strategy;
 
+import com.minethurn.logicworld.clausal.LogicalClause;
 import com.minethurn.logicworld.clausal.LogicalWorld;
 
 /**
@@ -73,5 +74,27 @@ public abstract class LogicStrategyAdapter implements ILogicStrategy
    public void setGamma(final LogicalWorld gamma)
    {
       this.gamma = gamma;
+   }
+
+   /**
+    * check the world for any clauses that are identical to the given clause
+    *
+    * @param world
+    *           the set of clauses to check
+    * @param clauseToCheck
+    *           the clause to check
+    * @return {@code true} if the clause doesn't already exist in the given world, or {@code false} otherwise
+    */
+   protected boolean isUnique(final LogicalWorld world, final LogicalClause clauseToCheck)
+   {
+      // only add units to the derivation if they don't already exist
+      for (final LogicalClause derived : world)
+      {
+         if (clauseToCheck.equals(derived))
+         {
+            return false;
+         }
+      }
+      return true;
    }
 }

@@ -1,0 +1,5 @@
+{ ¬Key(x), ¬Town(x), Ans(x) }
+{ T(A), Ans(A) }
+{ T(B), Ans(B) }
+{ T(C), Ans(C) }
+{ T(D), Ans(D) }

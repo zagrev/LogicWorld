@@ -3,6 +3,8 @@
  */
 package com.minethurn.logicworld.clausal;
 
+import java.util.HashMap;
+
 /**
  *
  */
@@ -99,6 +101,24 @@ public class LogicalVariable extends LogicalUnit
    public boolean isEntity()
    {
       return entity;
+   }
+
+   /*
+    * (non-Javadoc)
+    * @see com.minethurn.logicworld.clausal.LogicalUnit#map(java.util.HashMap)
+    */
+   @Override
+   public LogicalUnit map(final HashMap<String, String> mapping)
+   {
+      final LogicalVariable newVariable = new LogicalVariable(getName());
+      newVariable.setPositive(isPositive());
+
+      final String newName = mapping.get(getName());
+      if (newName != null)
+      {
+         newVariable.setName(newName);
+      }
+      return newVariable;
    }
 
    /**

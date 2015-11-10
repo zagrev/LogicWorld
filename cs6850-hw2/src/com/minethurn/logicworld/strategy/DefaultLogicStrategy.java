@@ -1,15 +1,16 @@
 /**
  *
  */
-package com.minethurn.logicworld.processor;
+package com.minethurn.logicworld.strategy;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashSet;
 
 import com.minethurn.logicworld.clausal.LogicalClause;
 import com.minethurn.logicworld.clausal.LogicalUnit;
 import com.minethurn.logicworld.clausal.LogicalWorld;
+import com.minethurn.logicworld.processor.DerivationLine;
+import com.minethurn.logicworld.processor.LogicalUnitNameComparator;
 
 /**
  *
@@ -75,14 +76,7 @@ public class DefaultLogicStrategy extends LogicStrategyAdapter
 
          // now sort by name
          final LogicalUnit[] units = map.toArray(new LogicalUnit[map.size()]);
-         Arrays.sort(units, new Comparator<LogicalUnit>()
-         {
-            @Override
-            public int compare(final LogicalUnit o1, final LogicalUnit o2)
-            {
-               return o1.getName().compareTo(o2.getName());
-            }
-         });
+         Arrays.sort(units, new LogicalUnitNameComparator());
 
          // if we have more than one clause
          if (units.length > 1)
