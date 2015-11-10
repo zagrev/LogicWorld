@@ -99,7 +99,6 @@ public class DeletionResolutionStrategy extends LogicStrategyAdapter
    private LogicalClause findNextComplementaryClause(final LogicalWorld world, final LogicalUnit currentUnit)
    {
       // continue on from where we were before
-      System.out.print(" ==>");
       while (otherClauseIndex < world.size())
       {
          final LogicalClause otherClause = world.getClause(otherClauseIndex);
@@ -110,7 +109,6 @@ public class DeletionResolutionStrategy extends LogicStrategyAdapter
          for (int otherUnitIndex = 0; otherUnitIndex < otherClause.size(); otherUnitIndex++)
          {
             final LogicalUnit otherUnit = otherClause.get(otherUnitIndex);
-            System.out.print(" " + otherUnit);
             // check if the unit is a complement other the unit we are checking
             if (currentUnit.complement(otherUnit))
             {
@@ -152,14 +150,11 @@ public class DeletionResolutionStrategy extends LogicStrategyAdapter
       while (currentClauseIndex < world.size())
       {
          final LogicalClause currentClause = world.getClause(currentClauseIndex);
-         System.out.println("curIndex = " + currentClauseIndex);
 
          while (currentUnitIndex < currentClause.size())
          {
             final LogicalUnit currentUnit = currentClause.get(currentUnitIndex);
-            System.out.print("" + currentUnit);
             final LogicalClause otherClause = findNextComplementaryClause(world, currentUnit);
-            System.out.println();
 
             // if we didn't find a complementary term, then we are done with this unit
             if (otherClause == null)
@@ -180,7 +175,6 @@ public class DeletionResolutionStrategy extends LogicStrategyAdapter
                // ok, this unit is done
                if (isUnique(world, newClause))
                {
-                  System.out.println("adding(" + world.size() + ") " + newClause);
                   world.add(newClause);
                   return newLine;
                }
