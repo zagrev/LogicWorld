@@ -126,17 +126,8 @@ public class UnitResolutionStrategy extends LogicStrategyAdapter
 
             if (otherClause != null)
             {
-               final LogicalClause newClause = new LogicalClause();
+               final LogicalClause newClause = combine(unitClause, otherClause);
                final DerivationLine line = new DerivationLine(newClause, currentUnitIndex, currentOtherIndex - 1);
-
-               // ok, now we can combine the two clauses
-               for (final LogicalUnit u : otherClause)
-               {
-                  if (!firstUnit.equals(u) && !firstUnit.complement(u))
-                  {
-                     newClause.add(u);
-                  }
-               }
 
                if (isUnique(world, newClause))
                {

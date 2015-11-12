@@ -3,34 +3,13 @@
  */
 package com.minethurn.logicworld.processor;
 
-import com.minethurn.logicworld.clausal.LogicalWorld;
-import com.minethurn.logicworld.strategy.ILogicStrategy;
+import com.minethurn.logicworld.strategy.LogicStrategyAdapter;
 
 /**
  *
  */
-public class NoopStrategy implements ILogicStrategy
+public class NoopStrategy extends LogicStrategyAdapter
 {
-
-   /*
-    * (non-Javadoc)
-    * @see com.minethurn.logicworld.processor.ILogicStrategy#finalize(com.minethurn.logicworld.clausal.LogicalWorld)
-    */
-   @Override
-   public void finalize(final LogicalWorld delta, final LogicalWorld gamma)
-   {
-      // do nothing
-   }
-
-   /*
-    * (non-Javadoc)
-    * @see com.minethurn.logicworld.processor.ILogicStrategy#initialize(com.minethurn.logicworld.clausal.LogicalWorld)
-    */
-   @Override
-   public void initialize(final LogicalWorld delta, final LogicalWorld gamma)
-   {
-      // do nothing
-   }
 
    /*
     * (non-Javadoc)

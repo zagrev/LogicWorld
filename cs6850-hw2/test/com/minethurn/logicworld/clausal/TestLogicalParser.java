@@ -13,13 +13,6 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import com.minethurn.logicworld.clausal.LogicalClause;
-import com.minethurn.logicworld.clausal.LogicalFunction;
-import com.minethurn.logicworld.clausal.LogicalParser;
-import com.minethurn.logicworld.clausal.LogicalUnit;
-import com.minethurn.logicworld.clausal.LogicalVariable;
-import com.minethurn.logicworld.clausal.LogicalWorld;
-
 /**
  *
  */

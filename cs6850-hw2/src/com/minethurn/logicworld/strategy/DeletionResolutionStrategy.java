@@ -3,8 +3,6 @@
  */
 package com.minethurn.logicworld.strategy;
 
-import java.util.HashSet;
-
 import com.minethurn.logicworld.clausal.LogicalClause;
 import com.minethurn.logicworld.clausal.LogicalUnit;
 import com.minethurn.logicworld.clausal.LogicalWorld;
@@ -21,59 +19,6 @@ public class DeletionResolutionStrategy extends LogicStrategyAdapter
    private int currentUnitIndex;
    /** the index of the clause that has a complement to the current unit */
    private int otherClauseIndex;
-
-   /**
-    * @param newClause
-    *           destination clause for all the units from the pair of clauses we are combining
-    * @param currentClause
-    *           the current clause
-    * @param otherClause
-    *           the other clause
-    */
-   private void combine(final LogicalClause newClause, final LogicalClause currentClause,
-         final LogicalClause otherClause)
-   {
-      final HashSet<LogicalUnit> alreadySeen = new HashSet<>();
-
-      for (final LogicalUnit u : currentClause)
-      {
-         // if we haven't already processed a duplicate term
-         if (!alreadySeen.contains(u))
-         {
-            // remember we looked at it
-            alreadySeen.add(u);
-            boolean found = false;
-
-            // now compare it to every unit in the other clause
-            for (final LogicalUnit u2 : otherClause)
-            {
-               // if there's a complement in the other clause, then remember we have seen it but don't copy it to the
-               // output clause
-               if (u.complement(u2))
-               {
-                  alreadySeen.add(u2);
-                  found = true;
-               }
-            }
-
-            // if we never saw a complement of this unit, then we can add this unit to the output clause
-            if (!found)
-            {
-               newClause.add(u);
-            }
-         } // not already seen
-      }
-
-      // now copy everything in the second clause that we have not already processed
-      for (final LogicalUnit u : otherClause)
-      {
-         if (!alreadySeen.contains(u))
-         {
-            newClause.add(u);
-         }
-      }
-
-   }
 
    /*
     * (non-Javadoc)
@@ -166,11 +111,8 @@ public class DeletionResolutionStrategy extends LogicStrategyAdapter
             // if we did find a complementary clause, that other line is done
             else
             {
-               final LogicalClause newClause = new LogicalClause();
+               final LogicalClause newClause = combine(currentClause, otherClause);
                final DerivationLine newLine = new DerivationLine(newClause, currentClauseIndex, otherClauseIndex);
-
-               // ok, now we can combine the two clauses
-               combine(newClause, currentClause, otherClause);
 
                // ok, this unit is done
                if (isUnique(world, newClause))

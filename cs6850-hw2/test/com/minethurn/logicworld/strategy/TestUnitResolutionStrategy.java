@@ -33,8 +33,8 @@ public class TestUnitResolutionStrategy
 
       processor.process();
 
-      assertEquals(3, processor.getDerivedWorld().size());
-      assertEquals("{ A }{ ¬A }{ }", processor.getDerivedWorld().toString());
+      assertEquals(3, processor.getResult().size());
+      assertEquals("{ A }{ ¬A }{ }", processor.getResult().toString());
    }
 
    /**
@@ -51,7 +51,7 @@ public class TestUnitResolutionStrategy
 
       processor.process();
 
-      assertEquals(0, processor.getDerivedWorld().size());
+      assertEquals(0, processor.getResult().size());
    }
 
    /**
@@ -68,7 +68,7 @@ public class TestUnitResolutionStrategy
 
       processor.process();
 
-      assertEquals(2, processor.getDerivedWorld().size());
+      assertEquals(2, processor.getResult().size());
    }
 
    /**
@@ -86,9 +86,8 @@ public class TestUnitResolutionStrategy
 
       processor.process();
 
-      assertEquals(10, processor.getDerivedWorld().size());
-      assertEquals("{ A, P }{ ¬B }{ P }{ Q }{ ¬A }{ B, ¬P }{ ¬P }" + "{ B }{ }{ A }",
-            processor.getDerivedWorld().toString());
+      assertEquals(10, processor.getResult().size());
+      assertEquals("{ A, P }{ ¬B }{ P }{ Q }{ ¬A }{ B, ¬P }{ ¬P }" + "{ B }{ }{ A }", processor.getResult().toString());
    }
 
    /**
@@ -106,8 +105,8 @@ public class TestUnitResolutionStrategy
 
       processor.process();
 
-      assertEquals(4, processor.getDerivedWorld().size());
-      assertEquals("{ A }{ ¬A }{ B }{ }", processor.getDerivedWorld().toString());
+      assertEquals(4, processor.getResult().size());
+      assertEquals("{ A }{ ¬A }{ B }{ }", processor.getResult().toString());
    }
 
    /**
@@ -125,8 +124,8 @@ public class TestUnitResolutionStrategy
 
       processor.process();
 
-      assertEquals(5, processor.getDerivedWorld().size());
-      assertEquals("{ A }{ ¬A }{ B }{ ¬A }{ }", processor.getDerivedWorld().toString());
+      assertEquals(5, processor.getResult().size());
+      assertEquals("{ A }{ ¬A }{ B }{ ¬A }{ }", processor.getResult().toString());
    }
 
    /**
@@ -144,8 +143,8 @@ public class TestUnitResolutionStrategy
 
       processor.process();
 
-      assertEquals(7, processor.getDerivedWorld().size());
-      assertEquals("{ A }{ ¬B }{ P }{ ¬A }{ B }{ ¬A }{ }", processor.getDerivedWorld().toString());
+      assertEquals(7, processor.getResult().size());
+      assertEquals("{ A }{ ¬B }{ P }{ ¬A }{ B }{ ¬A }{ }", processor.getResult().toString());
    }
 
    /**
@@ -163,9 +162,8 @@ public class TestUnitResolutionStrategy
 
       processor.process();
 
-      assertEquals("{ A }{ ¬B }{ P }{ Q }{ ¬A }{ B, ¬P }{ ¬A }" + "{ }{ ¬P }{ B }",
-            processor.getDerivedWorld().toString());
-      assertEquals(10, processor.getDerivedWorld().size());
+      assertEquals("{ A }{ ¬B }{ P }{ Q }{ ¬A }{ B, ¬P }{ ¬A }" + "{ }{ ¬P }{ B }", processor.getResult().toString());
+      assertEquals(10, processor.getResult().size());
    }
 
    /**
@@ -182,6 +180,6 @@ public class TestUnitResolutionStrategy
 
       processor.process();
 
-      assertEquals(2, processor.getDerivedWorld().size());
+      assertEquals(2, processor.getResult().size());
    }
 }

@@ -54,11 +54,6 @@ public class LogicProcessor
    private static final String DERIVED_FORMAT = "%-4d %-40s %d, %d";
 
    /**
-    * The output format for a premise line (with delta for gamma)
-    */
-   private static final String LINE_FORMAT = "%-4d %-40s %s";
-
-   /**
     *
     */
    private static final int MAX_COUNT = 100;
@@ -183,9 +178,6 @@ public class LogicProcessor
    /** the question we are trying to answer */
    LogicalWorld gamma;
 
-   /** the current state of the derivation */
-   LogicalWorld derivedWorld;
-
    /** the steps created during the derivation */
    ArrayList<DerivationLine> derivation;
 
@@ -227,19 +219,26 @@ public class LogicProcessor
    }
 
    /**
-    * @return the derivedWorld
-    */
-   public LogicalWorld getDerivedWorld()
-   {
-      return derivedWorld;
-   }
-
-   /**
     * @return the gamma
     */
    public LogicalWorld getGamma()
    {
       return gamma;
+   }
+
+   /**
+    * return the world as it exists after it was processed
+    *
+    * @return the processed world
+    */
+   public LogicalWorld getResult()
+   {
+      final LogicalWorld w = new LogicalWorld();
+      for (final DerivationLine line : getDerivation())
+      {
+         w.getClauses().addAll(line.getClauses());
+      }
+      return w;
    }
 
    /**
@@ -280,43 +279,19 @@ public class LogicProcessor
          throw new IllegalStateException("Both delta and gamma must be defined");
       }
 
-      derivedWorld = new LogicalWorld();
-      int count = 1;
-
-      if (removePureLiterals)
-      {
-         PureLiteralRemoval.removePureLiterals(delta);
-      }
-      if (removeTautologies)
-      {
-         TautologyRemoval.removeTautologies(delta);
-      }
       // combine the worlds
+      strategy.initialize(delta, gamma);
       for (final LogicalClause d : delta)
       {
-         derivedWorld.add(d);
          derivation.add(new DerivationLine(d, DerivationLineType.DELTA));
-         System.out.println(String.format(LINE_FORMAT, Integer.valueOf(count++), d.toString(), "D"));
       }
-
-      if (removePureLiterals)
+      for (final LogicalClause d : gamma)
       {
-         PureLiteralRemoval.removePureLiterals(gamma);
+         derivation.add(new DerivationLine(d, DerivationLineType.GAMMA));
       }
-      if (removeTautologies)
-      {
-         TautologyRemoval.removeTautologies(gamma);
-      }
-      for (final LogicalClause g : gamma)
-      {
-         derivedWorld.add(g);
-         derivation.add(new DerivationLine(g, DerivationLineType.GAMMA));
-         System.out.println(String.format(LINE_FORMAT, Integer.valueOf(count++), g.toString(), "G"));
-      }
-
-      strategy.initialize(delta, gamma);
 
       DerivationLine newLine = strategy.step();
+      int count = delta.size() + gamma.size() + 1;
       while (newLine != null && !newLine.getClauses().isEmpty() && count < MAX_COUNT)
       {
          for (final LogicalClause c : newLine.getClauses())
@@ -324,7 +299,6 @@ public class LogicProcessor
             System.out.println(String.format(DERIVED_FORMAT, Integer.valueOf(count++), c.toString(),
                   Integer.valueOf(newLine.getLeftIndex() + 1), Integer.valueOf(newLine.getRightIndex() + 1)));
          }
-         derivedWorld.addAll(newLine.getClauses());
          derivation.add(newLine);
 
          newLine = strategy.step();
@@ -340,15 +314,6 @@ public class LogicProcessor
    public void setDerivation(final ArrayList<DerivationLine> derivation)
    {
       this.derivation = derivation;
-   }
-
-   /**
-    * @param derivedWorld
-    *           the derivedWorld to set
-    */
-   public void setDerivedWorld(final LogicalWorld derivedWorld)
-   {
-      this.derivedWorld = derivedWorld;
    }
 
    /**

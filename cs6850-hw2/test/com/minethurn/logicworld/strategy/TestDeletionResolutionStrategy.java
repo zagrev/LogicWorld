@@ -29,12 +29,12 @@ public class TestDeletionResolutionStrategy
 
       final LogicProcessor processor = new LogicProcessor(d, g);
 
-      final DeletionResolutionStrategy deletionStrategy = new DeletionResolutionStrategy();
+      final LogicStrategyAdapter deletionStrategy = new DeletionResolutionStrategy();
       processor.setStrategy(deletionStrategy);
 
       processor.process();
 
-      final LogicalWorld world = processor.getDerivedWorld();
+      final LogicalWorld world = processor.getResult();
       assertEquals(3, world.size());
       assertEquals("{ A(x), B(x), 括(y), C(x), D(x) }", world.getClause(0).toString());
       assertEquals("{ 拾(x), D(x), 括(x), C(y) }", world.getClause(1).toString());
@@ -52,12 +52,12 @@ public class TestDeletionResolutionStrategy
 
       final LogicProcessor processor = new LogicProcessor(d, g);
 
-      final DeletionResolutionStrategy deletionStrategy = new DeletionResolutionStrategy();
+      final LogicStrategyAdapter deletionStrategy = new DeletionResolutionStrategy();
       processor.setStrategy(deletionStrategy);
 
       processor.process();
 
-      final LogicalWorld world = processor.getDerivedWorld();
+      final LogicalWorld world = processor.getResult();
 
       assertEquals(9, world.size());
       assertEquals("{ A(x), B(x), 括(y), C(x), D(x) }", world.getClause(0).toString());
@@ -82,12 +82,12 @@ public class TestDeletionResolutionStrategy
 
       final LogicProcessor processor = new LogicProcessor(d, g);
 
-      final DeletionResolutionStrategy deletionStrategy = new DeletionResolutionStrategy();
+      final LogicStrategyAdapter deletionStrategy = new DeletionResolutionStrategy();
       processor.setStrategy(deletionStrategy);
 
       processor.process();
 
-      assertEquals(2, processor.getDerivedWorld().size());
+      assertEquals(2, processor.getResult().size());
    }
 
    /**
@@ -101,12 +101,12 @@ public class TestDeletionResolutionStrategy
 
       final LogicProcessor processor = new LogicProcessor(d, g);
 
-      final DeletionResolutionStrategy deletionStrategy = new DeletionResolutionStrategy();
+      final LogicStrategyAdapter deletionStrategy = new DeletionResolutionStrategy();
       processor.setStrategy(deletionStrategy);
 
       processor.process();
 
-      final LogicalWorld world = processor.getDerivedWorld();
+      final LogicalWorld world = processor.getResult();
 // assertEquals(9, world.size());
       assertEquals("{ A(x), 拾(x) }", world.getClause(0).toString());
       assertEquals("{ B(x) }", world.getClause(1).toString());
@@ -127,12 +127,12 @@ public class TestDeletionResolutionStrategy
 
       final LogicProcessor processor = new LogicProcessor(d, g);
 
-      final DeletionResolutionStrategy deletionStrategy = new DeletionResolutionStrategy();
+      final LogicStrategyAdapter deletionStrategy = new DeletionResolutionStrategy();
       processor.setStrategy(deletionStrategy);
 
       processor.process();
 
-      assertEquals(2, processor.getDerivedWorld().size());
+      assertEquals(2, processor.getResult().size());
    }
 
    /**
@@ -146,12 +146,12 @@ public class TestDeletionResolutionStrategy
 
       final LogicProcessor processor = new LogicProcessor(d, g);
 
-      final DeletionResolutionStrategy deletionStrategy = new DeletionResolutionStrategy();
+      final LogicStrategyAdapter deletionStrategy = new DeletionResolutionStrategy();
       processor.setStrategy(deletionStrategy);
 
       processor.process();
 
-      final LogicalWorld world = processor.getDerivedWorld();
+      final LogicalWorld world = processor.getResult();
       assertEquals(3, world.size());
       assertEquals("{ Func(A) }", world.getClause(0).toString());
       assertEquals("{ Func(X,Y), 政unc(A) }", world.getClause(1).toString());
@@ -169,12 +169,12 @@ public class TestDeletionResolutionStrategy
 
       final LogicProcessor processor = new LogicProcessor(d, g);
 
-      final DeletionResolutionStrategy deletionStrategy = new DeletionResolutionStrategy();
+      final LogicStrategyAdapter deletionStrategy = new DeletionResolutionStrategy();
       processor.setStrategy(deletionStrategy);
 
       processor.process();
 
-      final LogicalWorld world = processor.getDerivedWorld();
+      final LogicalWorld world = processor.getResult();
       assertEquals(3, world.size());
       assertEquals("{ 政unc(X,Y) }", world.getClause(0).toString());
       assertEquals("{ Func(X,Y), 政unc(A) }", world.getClause(1).toString());
@@ -192,12 +192,12 @@ public class TestDeletionResolutionStrategy
 
       final LogicProcessor processor = new LogicProcessor(d, g);
 
-      final DeletionResolutionStrategy deletionStrategy = new DeletionResolutionStrategy();
+      final LogicStrategyAdapter deletionStrategy = new DeletionResolutionStrategy();
       processor.setStrategy(deletionStrategy);
 
       processor.process();
 
-      final LogicalWorld world = processor.getDerivedWorld();
+      final LogicalWorld world = processor.getResult();
       assertEquals(3, world.size());
       assertEquals("{ 政unc(X,Y), Func(D,G) }", world.getClause(0).toString());
       assertEquals("{ Func(X,Y), 政unc(A) }", world.getClause(1).toString());

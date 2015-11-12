@@ -32,8 +32,8 @@ public class TestLogicalProcessor
       processor.setStrategy(new DefaultLogicStrategy());
       processor.process();
 
-      assertEquals("should have a single clause", 3, processor.derivedWorld.size());
-      assertEquals("world should be \"{  }\"", "{ }", processor.derivedWorld.getClause(2).toString());
+      assertEquals("should have a single clause", 3, processor.getResult().size());
+      assertEquals("world should be \"{  }\"", "{ }", processor.getResult().getClause(2).toString());
    }
 
    /**
@@ -49,8 +49,8 @@ public class TestLogicalProcessor
       processor.setStrategy(new DefaultLogicStrategy());
       processor.process();
 
-      assertEquals("should have a single clause", 3, processor.derivedWorld.size());
-      assertEquals("world should be \"{  }\"", "{ Q }", processor.derivedWorld.getClause(2).toString());
+      assertEquals("should have a single clause", 3, processor.getResult().size());
+      assertEquals("world should be \"{  }\"", "{ Q }", processor.getResult().getClause(2).toString());
    }
 
    /**
@@ -66,8 +66,8 @@ public class TestLogicalProcessor
       processor.setStrategy(new DefaultLogicStrategy());
       processor.process();
 
-      assertEquals("should have a single clause", 3, processor.derivedWorld.size());
-      assertEquals("world should be \"{  }\"", "{ P }", processor.derivedWorld.getClause(2).toString());
+      assertEquals("should have a single clause", 3, processor.getResult().size());
+      assertEquals("world should be \"{  }\"", "{ P }", processor.getResult().getClause(2).toString());
    }
 
    /**
@@ -83,8 +83,8 @@ public class TestLogicalProcessor
       processor.setStrategy(new DefaultLogicStrategy());
       processor.process();
 
-      assertEquals("should have a single clause", 2, processor.derivedWorld.size());
-      assertEquals("world should be \"{ A }\"", "{ A }", processor.derivedWorld.getClause(0).toString());
+      assertEquals("should have a single clause", 2, processor.getResult().size());
+      assertEquals("world should be \"{ A }\"", "{ A }", processor.getResult().getClause(0).toString());
    }
 
    /**
@@ -116,8 +116,8 @@ public class TestLogicalProcessor
       processor.setStrategy(new NoopStrategy());
       processor.process();
 
-      assertEquals("should have the original clauses", 2, processor.derivation.size());
-      assertEquals("world size should be 2", 2, processor.derivedWorld.size());
+      assertEquals("should have the original clauses", 2, processor.getResult().size());
+      assertEquals("world size should be 2", 2, processor.getResult().size());
    }
 
    /**

@@ -23,6 +23,13 @@ public interface ILogicStrategy
    void finalize(LogicalWorld delta, LogicalWorld gamma);
 
    /**
+    * get the result after processing
+    * 
+    * @return the world containing all the derived clauses
+    */
+   LogicalWorld getResult();
+
+   /**
     * Called to allow the strategy to initialize any internal state that it needs
     *
     * @param delta

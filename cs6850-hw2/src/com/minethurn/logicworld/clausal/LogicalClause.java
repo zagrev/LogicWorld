@@ -4,6 +4,7 @@
 package com.minethurn.logicworld.clausal;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 
 /**
@@ -39,6 +40,14 @@ public class LogicalClause implements Iterable<LogicalUnit>
    public void add(final LogicalUnit newFunction)
    {
       units.add(newFunction);
+   }
+
+   /**
+    * @param src
+    */
+   public void addAll(final Collection<LogicalUnit> src)
+   {
+      units.addAll(src);
    }
 
    /**
