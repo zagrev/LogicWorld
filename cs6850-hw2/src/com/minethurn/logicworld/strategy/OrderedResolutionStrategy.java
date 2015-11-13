@@ -113,7 +113,7 @@ public class OrderedResolutionStrategy extends LogicStrategyAdapter
 
                   if (currentUnit.complement(otherUnit))
                   {
-                     final LogicalClause newClause = sortUnits(combine(currentClause, otherClause));
+                     final LogicalClause newClause = sortUnits(combine(currentClause, otherClause, currentMapping));
 
                      if (isUnique(world, newClause))
                      {
@@ -121,6 +121,27 @@ public class OrderedResolutionStrategy extends LogicStrategyAdapter
                               otherClauseindex - 1);
                         world.add(newClause);
                         return line;
+                     }
+                  }
+                  else
+                  {
+                     if (currentUnit.getName().equals(otherUnit.getName())
+                           && currentUnit.isPositive() != otherUnit.isPositive())
+                     {
+                        currentMapping = findMapping(currentClause, otherClause, currentUnit);
+                        if (currentUnit.complement(otherUnit.map(currentMapping)))
+                        {
+                           final LogicalClause newClause = sortUnits(
+                                 combine(currentClause, otherClause, currentMapping));
+
+                           if (isUnique(world, newClause))
+                           {
+                              final DerivationLine line = new DerivationLine(newClause, currentClauseIndex,
+                                    otherClauseindex - 1);
+                              world.add(newClause);
+                              return line;
+                           }
+                        }
                      }
                   }
                }

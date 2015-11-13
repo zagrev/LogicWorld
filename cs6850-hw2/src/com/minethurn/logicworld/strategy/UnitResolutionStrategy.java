@@ -43,6 +43,16 @@ public class UnitResolutionStrategy extends LogicStrategyAdapter
                {
                   return c;
                }
+
+               // not a complement outright, but with a mapping?
+               else if (logicalUnit.getName().equals(u.getName()) && logicalUnit.isPositive() != u.isPositive())
+               {
+                  currentMapping = findMapping(world.getClause(currentUnitIndex), c, u);
+                  if (currentMapping.size() > 0 && logicalUnit.complement(u.map(currentMapping)))
+                  {
+                     return c;
+                  }
+               }
             }
 
          }
@@ -126,7 +136,7 @@ public class UnitResolutionStrategy extends LogicStrategyAdapter
 
             if (otherClause != null)
             {
-               final LogicalClause newClause = combine(unitClause, otherClause);
+               final LogicalClause newClause = combine(unitClause, otherClause, currentMapping);
                final DerivationLine line = new DerivationLine(newClause, currentUnitIndex, currentOtherIndex - 1);
 
                if (isUnique(world, newClause))

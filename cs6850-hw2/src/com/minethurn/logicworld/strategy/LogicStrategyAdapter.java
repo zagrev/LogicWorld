@@ -3,10 +3,14 @@
  */
 package com.minethurn.logicworld.strategy;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 import com.minethurn.logicworld.clausal.LogicalClause;
+import com.minethurn.logicworld.clausal.LogicalFunction;
+import com.minethurn.logicworld.clausal.LogicalMapping;
 import com.minethurn.logicworld.clausal.LogicalUnit;
+import com.minethurn.logicworld.clausal.LogicalVariable;
 import com.minethurn.logicworld.clausal.LogicalWorld;
 import com.minethurn.logicworld.processor.PureLiteralRemoval;
 import com.minethurn.logicworld.processor.TautologyRemoval;
@@ -30,20 +34,27 @@ public abstract class LogicStrategyAdapter implements ILogicStrategy
 
    /** whether we should remove tautologies before processing */
    private boolean removeTautologies = false;
+   /** the mapping to use between the current clause and the other clause */
+   protected LogicalMapping currentMapping;
 
    /**
     * @param currentClause
     *           the current clause
     * @param otherClause
     *           the other clause
+    * @param mapping
+    *           the mapping to use between the variables and the entities, if any
     * @return a new clause representing the combination of the two given clauses
     */
-   protected LogicalClause combine(final LogicalClause currentClause, final LogicalClause otherClause)
+   protected LogicalClause combine(final LogicalClause currentClause, final LogicalClause otherClause,
+         final LogicalMapping mapping)
    {
       final LogicalClause newClause = new LogicalClause();
       final HashSet<LogicalUnit> alreadySeen = new HashSet<>();
+      final LogicalClause mappedCurrent = currentClause.map(mapping);
+      final LogicalClause mappedOther = otherClause.map(mapping);
 
-      for (final LogicalUnit u : currentClause)
+      for (final LogicalUnit u : mappedCurrent)
       {
          // if we haven't already processed a duplicate term
          if (!alreadySeen.contains(u))
@@ -53,7 +64,7 @@ public abstract class LogicStrategyAdapter implements ILogicStrategy
             boolean found = false;
 
             // now compare it to every unit in the other clause
-            for (final LogicalUnit u2 : otherClause)
+            for (final LogicalUnit u2 : mappedOther)
             {
                // if there's a complement in the other clause, then remember we have seen it but don't copy it to the
                // output clause
@@ -73,7 +84,7 @@ public abstract class LogicStrategyAdapter implements ILogicStrategy
       }
 
       // now copy everything in the second clause that we have not already processed
-      for (final LogicalUnit u : otherClause)
+      for (final LogicalUnit u : mappedOther)
       {
          if (!alreadySeen.contains(u))
          {
@@ -93,6 +104,50 @@ public abstract class LogicStrategyAdapter implements ILogicStrategy
    public void finalize(final LogicalWorld d, final LogicalWorld g)
    {
       // do nothing
+   }
+
+   /**
+    * find a mapping between two clauses. This will map the first variable to the first entity without regard for order.
+    *
+    * @param a
+    *           the first clause in the mapping
+    * @param b
+    *           the second clause in the mapping
+    * @param toMap
+    *           the logical unit that we must map first
+    * @return a logical mapping between the two clauses, if one exists. This may return an empty mapping, in which case
+    *         no mapping is available.
+    */
+   public LogicalMapping findMapping(final LogicalClause a, final LogicalClause b, final LogicalUnit toMap)
+   {
+      final LogicalMapping mapping = new LogicalMapping();
+      final ArrayList<LogicalVariable> variables = new ArrayList<>();
+      final ArrayList<LogicalVariable> entities = new ArrayList<>();
+
+      // TODO worry about sub-functions and sub-variables
+      splitVariables(a, variables, entities);
+      splitVariables(b, variables, entities);
+
+      // now start mapping with the important unit
+      if (toMap != null && toMap instanceof LogicalFunction)
+      {
+         for (final LogicalUnit u : ((LogicalFunction) toMap).getVariables())
+         {
+            if (u instanceof LogicalVariable && !((LogicalVariable) u).isEntity() && entities.size() > 0)
+            {
+               mapping.put(u.getName(), entities.remove(0).getName());
+               variables.remove(u);
+            }
+         }
+      }
+      for (final LogicalVariable v : variables)
+      {
+         if (entities.size() > 0)
+         {
+            mapping.put(v.getName(), entities.remove(0).getName());
+         }
+      }
+      return mapping;
    }
 
    /**
@@ -232,4 +287,41 @@ public abstract class LogicStrategyAdapter implements ILogicStrategy
       this.removeTautologies = removeTautologies;
    }
 
+   /**
+    * @param a
+    * @param variables
+    * @param entities
+    */
+   private void splitVariables(final LogicalClause a, final ArrayList<LogicalVariable> variables,
+         final ArrayList<LogicalVariable> entities)
+   {
+      for (final LogicalUnit u : a)
+      {
+         if (u instanceof LogicalVariable)
+         {
+            if (((LogicalVariable) u).isEntity())
+            {
+               entities.add((LogicalVariable) u);
+            }
+            else
+            {
+               variables.add((LogicalVariable) u);
+            }
+         }
+         else if (u instanceof LogicalFunction)
+         {
+            for (final LogicalVariable v : ((LogicalFunction) u).getVariables())
+            {
+               if (v.isEntity())
+               {
+                  entities.add(v);
+               }
+               else
+               {
+                  variables.add(v);
+               }
+            }
+         }
+      }
+   }
 }

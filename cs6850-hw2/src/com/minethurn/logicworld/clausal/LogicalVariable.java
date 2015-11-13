@@ -21,6 +21,7 @@ public class LogicalVariable extends LogicalUnit
    public LogicalVariable(final String name)
    {
       this.name = name;
+      testForEntity(name);
    }
 
    /**
@@ -29,6 +30,7 @@ public class LogicalVariable extends LogicalUnit
     */
    public LogicalVariable(final String string, final boolean b)
    {
+      this(string);
       setEntity(b);
    }
 
@@ -110,15 +112,19 @@ public class LogicalVariable extends LogicalUnit
    @Override
    public LogicalUnit map(final HashMap<String, String> mapping)
    {
-      final LogicalVariable newVariable = new LogicalVariable(getName());
-      newVariable.setPositive(isPositive());
-
-      final String newName = mapping.get(getName());
-      if (newName != null)
+      if (mapping != null)
       {
-         newVariable.setName(newName);
+         final LogicalVariable newVariable = new LogicalVariable(getName());
+         newVariable.setPositive(isPositive());
+
+         final String newName = mapping.get(getName());
+         if (newName != null)
+         {
+            newVariable.setName(newName);
+         }
+         return newVariable;
       }
-      return newVariable;
+      return this;
    }
 
    /**
@@ -128,6 +134,32 @@ public class LogicalVariable extends LogicalUnit
    public void setEntity(final boolean entity)
    {
       this.entity = entity;
+   }
+
+   /*
+    * (non-Javadoc)
+    * @see com.minethurn.logicworld.clausal.LogicalUnit#setName(java.lang.String)
+    */
+   @Override
+   public void setName(final String name)
+   {
+      super.setName(name);
+      testForEntity(name);
+   }
+
+   /**
+    * @param newName
+    */
+   private void testForEntity(final String newName)
+   {
+      if (newName != null && newName.length() > 0)
+      {
+         final char first = newName.charAt(0);
+         if (Character.isUpperCase(first))
+         {
+            setEntity(true);
+         }
+      }
    }
 
    /*

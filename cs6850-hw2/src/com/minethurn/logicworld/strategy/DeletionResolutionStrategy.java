@@ -4,6 +4,7 @@
 package com.minethurn.logicworld.strategy;
 
 import com.minethurn.logicworld.clausal.LogicalClause;
+import com.minethurn.logicworld.clausal.LogicalMapping;
 import com.minethurn.logicworld.clausal.LogicalUnit;
 import com.minethurn.logicworld.clausal.LogicalWorld;
 import com.minethurn.logicworld.processor.DerivationLine;
@@ -59,6 +60,16 @@ public class DeletionResolutionStrategy extends LogicStrategyAdapter
             {
                return otherClause;
             }
+            else if (currentUnit.getName().equals(otherUnit.getName()))
+            {
+               final LogicalMapping mapping = findMapping(world.getClause(currentClauseIndex), otherClause, otherUnit);
+               final LogicalUnit mappedUnit = otherUnit.map(mapping);
+               if (currentUnit.complement(mappedUnit))
+               {
+                  currentMapping = mapping;
+                  return otherClause;
+               }
+            }
          } // for each unit in the other clause
       } // for each other clause
 
@@ -111,7 +122,7 @@ public class DeletionResolutionStrategy extends LogicStrategyAdapter
             // if we did find a complementary clause, that other line is done
             else
             {
-               final LogicalClause newClause = combine(currentClause, otherClause);
+               final LogicalClause newClause = combine(currentClause, otherClause, currentMapping);
                final DerivationLine newLine = new DerivationLine(newClause, currentClauseIndex, otherClauseIndex);
 
                // ok, this unit is done

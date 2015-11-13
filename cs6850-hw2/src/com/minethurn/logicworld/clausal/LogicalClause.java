@@ -5,6 +5,7 @@ package com.minethurn.logicworld.clausal;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 
 /**
@@ -140,6 +141,23 @@ public class LogicalClause implements Iterable<LogicalUnit>
    public Iterator<LogicalUnit> iterator()
    {
       return units.iterator();
+   }
+
+   /**
+    * apply the mapping to all the units in this clause and return a new clause with the units mapped
+    *
+    * @param mapping
+    * @return a duplicate clause with the units mapped
+    */
+   public LogicalClause map(final HashMap<String, String> mapping)
+   {
+      final LogicalClause newClause = new LogicalClause();
+      for (final LogicalUnit u : this)
+      {
+         final LogicalUnit newUnit = u.map(mapping);
+         newClause.add(newUnit);
+      }
+      return newClause;
    }
 
    /**

@@ -52,6 +52,38 @@ public class TestLogicalVariable
    /**
     *
     */
+   @SuppressWarnings("boxing")
+   @Test
+   public void testEntity()
+   {
+      final LogicalVariable x = new LogicalVariable("x");
+      final LogicalVariable a = new LogicalVariable("A");
+
+      assertEquals(false, x.isEntity());
+      assertEquals(true, a.isEntity());
+   }
+
+   /**
+    *
+    */
+   @SuppressWarnings("boxing")
+   @Test
+   public void testEntityLongNames()
+   {
+      final LogicalVariable x = new LogicalVariable("x");
+      final LogicalVariable a = new LogicalVariable("A");
+      final LogicalVariable xc = new LogicalVariable("xCase");
+      final LogicalVariable alpha = new LogicalVariable("Alpha");
+
+      assertEquals(false, x.isEntity());
+      assertEquals(true, a.isEntity());
+      assertEquals(false, xc.isEntity());
+      assertEquals(true, alpha.isEntity());
+   }
+
+   /**
+    *
+    */
    @Test
    public void testEqualsNotEntity()
    {
