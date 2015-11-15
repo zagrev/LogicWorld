@@ -23,6 +23,22 @@ public class LogicalParser
     */
    public static LogicalWorld parse(final InputStream in) throws IOException
    {
+      return parse(in, LogicalClauseType.DERIVED);
+   }
+
+   /**
+    * parse the given input into a logical world and returns that world
+    *
+    * @param in
+    *           the input to read
+    * @param type
+    *           the type of the clauses to be created
+    * @return the created world. This is never null.
+    * @throws IOException
+    *            if the input cannot be read
+    */
+   public static LogicalWorld parse(final InputStream in, final LogicalClauseType type) throws IOException
+   {
       int c;
       final LogicalParser context = new LogicalParser();
 
@@ -32,7 +48,7 @@ public class LogicalParser
          {
          // start a new clause. Should not be in a clause right now
          case '{':
-            context.startClause();
+            context.startClause(type);
             break;
 
          // done with logical clause. Add it to the world
@@ -82,7 +98,6 @@ public class LogicalParser
       context.endWord();
 
       return context.world;
-
    }
 
    /**
@@ -94,7 +109,21 @@ public class LogicalParser
    {
       try (InputStream in = new ByteArrayInputStream(world.getBytes()))
       {
-         return parse(in);
+         return parse(in, LogicalClauseType.DERIVED);
+      }
+   }
+
+   /**
+    * @param world
+    * @param type
+    * @return the world defined in the given string
+    * @throws IOException
+    */
+   public static LogicalWorld parse(final String world, final LogicalClauseType type) throws IOException
+   {
+      try (InputStream in = new ByteArrayInputStream(world.getBytes()))
+      {
+         return parse(in, type);
       }
    }
 
@@ -192,13 +221,15 @@ public class LogicalParser
    }
 
    /**
-    *
+    * @param type
+    *           the type of clause to create
     */
-   public void startClause()
+   public void startClause(final LogicalClauseType type)
    {
       if (!inComment)
       {
          clause = new LogicalClause();
+         clause.setType(type);
          world.add(clause);
       }
    }

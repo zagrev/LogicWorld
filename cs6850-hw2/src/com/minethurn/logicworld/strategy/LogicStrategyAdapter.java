@@ -121,8 +121,8 @@ public abstract class LogicStrategyAdapter implements ILogicStrategy
    public LogicalMapping findMapping(final LogicalClause a, final LogicalClause b, final LogicalUnit toMap)
    {
       final LogicalMapping mapping = new LogicalMapping();
-      final ArrayList<LogicalVariable> variables = new ArrayList<>();
-      final ArrayList<LogicalVariable> entities = new ArrayList<>();
+      final ArrayList<String> variables = new ArrayList<>();
+      final ArrayList<String> entities = new ArrayList<>();
 
       // TODO worry about sub-functions and sub-variables
       splitVariables(a, variables, entities);
@@ -135,16 +135,16 @@ public abstract class LogicStrategyAdapter implements ILogicStrategy
          {
             if (u instanceof LogicalVariable && !((LogicalVariable) u).isEntity() && entities.size() > 0)
             {
-               mapping.put(u.getName(), entities.remove(0).getName());
+               mapping.put(u.getName(), entities.remove(0));
                variables.remove(u);
             }
          }
       }
-      for (final LogicalVariable v : variables)
+      for (final String v : variables)
       {
          if (entities.size() > 0)
          {
-            mapping.put(v.getName(), entities.remove(0).getName());
+            mapping.put(v, entities.remove(0));
          }
       }
       return mapping;
@@ -292,33 +292,41 @@ public abstract class LogicStrategyAdapter implements ILogicStrategy
     * @param variables
     * @param entities
     */
-   private void splitVariables(final LogicalClause a, final ArrayList<LogicalVariable> variables,
-         final ArrayList<LogicalVariable> entities)
+   private void splitVariables(final LogicalClause a, final ArrayList<String> variables,
+         final ArrayList<String> entities)
    {
       for (final LogicalUnit u : a)
       {
          if (u instanceof LogicalVariable)
          {
+            String name = u.getName();
             if (((LogicalVariable) u).isEntity())
             {
-               entities.add((LogicalVariable) u);
+               if (!entities.contains(name))
+               {
+                  entities.add(name);
+               }
             }
-            else
+            else if (!variables.contains(name))
             {
-               variables.add((LogicalVariable) u);
+               variables.add(name);
             }
          }
          else if (u instanceof LogicalFunction)
          {
             for (final LogicalVariable v : ((LogicalFunction) u).getVariables())
             {
+               String name = v.getName();
                if (v.isEntity())
                {
-                  entities.add(v);
+                  if (!entities.contains(name))
+                  {
+                     entities.add(name);
+                  }
                }
-               else
+               else if (!variables.contains(name))
                {
-                  variables.add(v);
+                  variables.add(name);
                }
             }
          }

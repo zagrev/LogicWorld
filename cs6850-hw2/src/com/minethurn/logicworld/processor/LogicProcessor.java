@@ -17,6 +17,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import com.minethurn.logicworld.clausal.LogicalClause;
+import com.minethurn.logicworld.clausal.LogicalClauseType;
 import com.minethurn.logicworld.clausal.LogicalParser;
 import com.minethurn.logicworld.clausal.LogicalWorld;
 import com.minethurn.logicworld.clausal.LogicalWorldPrinter;
@@ -29,32 +30,12 @@ import com.minethurn.logicworld.strategy.ILogicStrategy;
 public class LogicProcessor
 {
    /**
-    * whether the clause is from the original set of statements (delta), the query statements (gamma), or derived by the
-    * strategy
-    */
-   public enum DerivationLineType
-   {
-      /**
-       * from the original data set
-       */
-      DELTA,
-      /**
-       * from the query data set
-       */
-      GAMMA,
-      /**
-       * derived by the strategy
-       */
-      DERIVED
-   }
-
-   /**
     * the output format for a derived line (with line number pairs)
     */
    private static final String DERIVED_FORMAT = "%-4d %-40s %d, %d";
 
    /**
-    *
+    * The maximum number of iterations for perform before stopping
     */
    private static final int MAX_COUNT = 100;
 
@@ -151,11 +132,11 @@ public class LogicProcessor
 
       try (InputStream in = new FileInputStream(deltaFile))
       {
-         delta = LogicalParser.parse(in);
+         delta = LogicalParser.parse(in, LogicalClauseType.DELTA);
       }
       try (InputStream in = new FileInputStream(gammaFile))
       {
-         gamma = LogicalParser.parse(in);
+         gamma = LogicalParser.parse(in, LogicalClauseType.GAMMA);
       }
 
       final OutputStreamWriter output = new OutputStreamWriter(System.out);
@@ -283,11 +264,11 @@ public class LogicProcessor
       strategy.initialize(delta, gamma);
       for (final LogicalClause d : delta)
       {
-         derivation.add(new DerivationLine(d, DerivationLineType.DELTA));
+         derivation.add(new DerivationLine(d));
       }
       for (final LogicalClause d : gamma)
       {
-         derivation.add(new DerivationLine(d, DerivationLineType.GAMMA));
+         derivation.add(new DerivationLine(d));
       }
 
       DerivationLine newLine = strategy.step();

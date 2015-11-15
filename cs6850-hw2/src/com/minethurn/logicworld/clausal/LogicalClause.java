@@ -15,6 +15,8 @@ public class LogicalClause implements Iterable<LogicalUnit>
 {
    /** the functions in the logical clause */
    private ArrayList<LogicalUnit> units;
+   /** the type of clause - delta, gamma, or derived */
+   private LogicalClauseType type;
 
    /**
     * @param functions
@@ -30,6 +32,7 @@ public class LogicalClause implements Iterable<LogicalUnit>
             units.add(f);
          }
       }
+      type = LogicalClauseType.DERIVED;
    }
 
    /**
@@ -105,6 +108,14 @@ public class LogicalClause implements Iterable<LogicalUnit>
    }
 
    /**
+    * @return the type
+    */
+   public LogicalClauseType getType()
+   {
+      return type;
+   }
+
+   /**
     * @return the units
     */
    public ArrayList<LogicalUnit> getUnits()
@@ -158,6 +169,15 @@ public class LogicalClause implements Iterable<LogicalUnit>
          newClause.add(newUnit);
       }
       return newClause;
+   }
+
+   /**
+    * @param type
+    *           the type to set
+    */
+   public void setType(final LogicalClauseType type)
+   {
+      this.type = type;
    }
 
    /**

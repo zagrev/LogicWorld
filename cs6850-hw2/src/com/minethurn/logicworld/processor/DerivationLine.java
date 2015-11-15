@@ -6,7 +6,6 @@ package com.minethurn.logicworld.processor;
 import java.util.ArrayList;
 
 import com.minethurn.logicworld.clausal.LogicalClause;
-import com.minethurn.logicworld.processor.LogicProcessor.DerivationLineType;
 
 /**
  * how the line was derived and the order it was derived
@@ -15,9 +14,6 @@ public class DerivationLine
 {
    /** the clauses derived from this step */
    private ArrayList<LogicalClause> clauses;
-
-   /** where the clauses came from */
-   private final DerivationLineType type;
 
    /** the index of a clause used to create this clause */
    private int leftIndex;
@@ -32,20 +28,15 @@ public class DerivationLine
    {
       super();
       this.clauses = new ArrayList<>();
-      this.type = DerivationLineType.DERIVED;
    }
 
    /**
     * @param clause
-    * @param type
     */
-   public DerivationLine(final LogicalClause clause, final DerivationLineType type)
+   public DerivationLine(final LogicalClause clause)
    {
-      super();
-      this.clauses = new ArrayList<>();
-
+      this();
       this.clauses.add(clause);
-      this.type = type;
    }
 
    /**
@@ -55,12 +46,9 @@ public class DerivationLine
     */
    public DerivationLine(final LogicalClause newClause, final int index1, final int index2)
    {
-      super();
-      clauses = new ArrayList<>();
-      clauses.add(newClause);
+      this(newClause);
       leftIndex = index1;
       rightIndex = index2;
-      type = DerivationLineType.DERIVED;
    }
 
    /**
@@ -85,14 +73,6 @@ public class DerivationLine
    public int getRightIndex()
    {
       return rightIndex;
-   }
-
-   /**
-    * @return the type
-    */
-   public DerivationLineType getType()
-   {
-      return type;
    }
 
    /**
