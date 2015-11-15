@@ -6,6 +6,7 @@ package com.minethurn.logicworld.processor;
 import java.util.ArrayList;
 
 import com.minethurn.logicworld.clausal.LogicalClause;
+import com.minethurn.logicworld.clausal.LogicalMapping;
 
 /**
  * how the line was derived and the order it was derived
@@ -20,6 +21,9 @@ public class DerivationLine
 
    /** the index of the other clause used to create this clause */
    private int rightIndex;
+
+   /** the mapping used to derive this line */
+   private LogicalMapping mapping;
 
    /**
     * create an empty derived line
@@ -68,6 +72,14 @@ public class DerivationLine
    }
 
    /**
+    * @return the mapping
+    */
+   public LogicalMapping getMapping()
+   {
+      return mapping;
+   }
+
+   /**
     * @return the rightIndex
     */
    public int getRightIndex()
@@ -94,11 +106,31 @@ public class DerivationLine
    }
 
    /**
+    * @param mapping
+    *           the mapping to set
+    */
+   public void setMapping(final LogicalMapping mapping)
+   {
+      this.mapping = mapping;
+   }
+
+   /**
     * @param rightIndex
     *           the rightIndex to set
     */
    public void setRightIndex(final int rightIndex)
    {
       this.rightIndex = rightIndex;
+   }
+
+   /*
+    * (non-Javadoc)
+    * @see java.lang.Object#toString()
+    */
+   @Override
+   public String toString()
+   {
+      return "DerivationLine [clauses=" + clauses + ", leftIndex=" + leftIndex + ", rightIndex=" + rightIndex
+            + ", mapping=" + mapping + "]";
    }
 }

@@ -6,9 +6,9 @@ package com.minethurn.logicworld.strategy;
 import java.util.PriorityQueue;
 
 import com.minethurn.logicworld.clausal.LogicalClause;
+import com.minethurn.logicworld.clausal.LogicalMapping;
 import com.minethurn.logicworld.clausal.LogicalUnit;
 import com.minethurn.logicworld.clausal.LogicalWorld;
-import com.minethurn.logicworld.processor.DerivationLine;
 import com.minethurn.logicworld.processor.LogicalUnitNameComparator;
 
 /**
@@ -16,12 +16,58 @@ import com.minethurn.logicworld.processor.LogicalUnitNameComparator;
  */
 public class OrderedResolutionStrategy extends LogicStrategyAdapter
 {
-   /** the current clause */
-   private int currentClauseIndex;
-   /** the other clause */
-   private int otherClauseindex;
    /** the sorting queue */
    private final PriorityQueue<LogicalUnit> queue = new PriorityQueue<>(10, new LogicalUnitNameComparator());
+
+   /*
+    * (non-Javadoc)
+    * @see
+    * com.minethurn.logicworld.strategy.LogicStrategyAdapter#combine(com.minethurn.logicworld.clausal.LogicalClause,
+    * com.minethurn.logicworld.clausal.LogicalClause, com.minethurn.logicworld.clausal.LogicalMapping)
+    */
+   @Override
+   protected LogicalClause combine(final LogicalClause currentClause, final LogicalClause otherClause,
+         final LogicalMapping mapping)
+   {
+      return sortUnits(super.combine(currentClause, otherClause, mapping));
+   }
+
+   /*
+    * (non-Javadoc)
+    * @see com.minethurn.logicworld.strategy.LogicStrategyAdapter#getNextSecondaryClause()
+    */
+   @Override
+   protected LogicalClause getNextSecondaryClause()
+   {
+      final LogicalWorld curWorld = getWorld();
+      final int size = curWorld.size();
+      while (getOtherClauseIndex() < size)
+      {
+         final LogicalClause primaryClause = curWorld.getClause(getCurrentClauseIndex());
+         final LogicalClause testClause = curWorld.getClause(getOtherClauseIndex());
+
+         if (primaryClause.size() > 0 && testClause.size() > 0)
+         {
+            final LogicalUnit toMap = primaryClause.get(0);
+            final LogicalMapping mapping = findMapping(primaryClause, testClause, toMap);
+
+            final LogicalClause mappedPrimary = primaryClause.map(mapping);
+            final LogicalClause mappedSecondary = testClause.map(mapping);
+
+            final LogicalUnit mappedPrimaryUnit = mappedPrimary.get(0);
+            final LogicalUnit mappedSecondaryUnit = mappedSecondary.get(0);
+
+            if (mappedPrimaryUnit.complement(mappedSecondaryUnit))
+            {
+               return testClause;
+            }
+         }
+         incrementSecondaryClauseIndex();
+      } // while more primary clauses candidates available
+
+      resetSecondaryClauseIndex();
+      return null;
+   }
 
    /*
     * (non-Javadoc)
@@ -37,14 +83,8 @@ public class OrderedResolutionStrategy extends LogicStrategyAdapter
 
       super.initialize(d, g);
 
-      // have to fix base and refutation :(
       base.setClauses(d.getClauses());
       refutation.setClauses(g.getClauses());
-
-      getDelta().addAll(getGamma().getClauses());
-
-      currentClauseIndex = 0;
-      otherClauseindex = 1;
    }
 
    /**
@@ -85,72 +125,6 @@ public class OrderedResolutionStrategy extends LogicStrategyAdapter
          world.add(newclause);
       }
       return world;
-   }
-
-   /*
-    * (non-Javadoc)
-    * @see com.minethurn.logicworld.strategy.ILogicStrategy#step()
-    */
-   @Override
-   public DerivationLine step()
-   {
-      final LogicalWorld world = getDelta();
-      while (currentClauseIndex < world.size())
-      {
-         final LogicalClause currentClause = world.getClause(currentClauseIndex);
-         if (currentClause.size() > 0)
-         {
-            final LogicalUnit currentUnit = currentClause.get(0);
-
-            while (otherClauseindex < world.size())
-            {
-               final LogicalClause otherClause = world.getClause(otherClauseindex);
-               otherClauseindex++;
-
-               if (otherClause.size() > 0)
-               {
-                  final LogicalUnit otherUnit = otherClause.get(0);
-
-                  if (currentUnit.complement(otherUnit))
-                  {
-                     final LogicalClause newClause = sortUnits(combine(currentClause, otherClause, currentMapping));
-
-                     if (isUnique(world, newClause))
-                     {
-                        final DerivationLine line = new DerivationLine(newClause, currentClauseIndex,
-                              otherClauseindex - 1);
-                        world.add(newClause);
-                        return line;
-                     }
-                  }
-                  else
-                  {
-                     if (currentUnit.getName().equals(otherUnit.getName())
-                           && currentUnit.isPositive() != otherUnit.isPositive())
-                     {
-                        currentMapping = findMapping(currentClause, otherClause, currentUnit);
-                        if (currentUnit.complement(otherUnit.map(currentMapping)))
-                        {
-                           final LogicalClause newClause = sortUnits(
-                                 combine(currentClause, otherClause, currentMapping));
-
-                           if (isUnique(world, newClause))
-                           {
-                              final DerivationLine line = new DerivationLine(newClause, currentClauseIndex,
-                                    otherClauseindex - 1);
-                              world.add(newClause);
-                              return line;
-                           }
-                        }
-                     }
-                  }
-               }
-            }
-         }
-         currentClauseIndex++;
-         otherClauseindex = 0;
-      }
-      return null;
    }
 
 }

@@ -7,6 +7,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 
 import com.minethurn.logicworld.clausal.LogicalParser;
@@ -18,6 +20,9 @@ import com.minethurn.logicworld.processor.LogicProcessor;
  */
 public class TestUnitResolutionStrategy
 {
+   /** the logger */
+   private final Logger logger = LogManager.getLogger(getClass());
+
    /**
     * @throws IOException
     */
@@ -85,9 +90,25 @@ public class TestUnitResolutionStrategy
       processor.setStrategy(strategy);
 
       processor.process();
+      final LogicalWorld result = processor.getResult();
+      logger.debug("result = " + result);
+
+      int i = 0;
+      // delta
+      assertEquals("{ A, P }", result.getClause(i++).toString());
+      assertEquals("{ 拾 }", result.getClause(i++).toString());
+      assertEquals("{ P }", result.getClause(i++).toString());
+      assertEquals("{ Q }", result.getClause(i++).toString());
+      // gamma
+      assertEquals("{ 括 }", result.getClause(i++).toString());
+      assertEquals("{ B, 星 }", result.getClause(i++).toString());
+
+      // derived
+      assertEquals("{ 星 }", result.getClause(i++).toString());
+      assertEquals("{ B }", result.getClause(i++).toString());
+      assertEquals("{ }", result.getClause(i++).toString());
 
       assertEquals(10, processor.getResult().size());
-      assertEquals("{ A, P }{ 拾 }{ P }{ Q }{ 括 }{ B, 星 }{ 星 }" + "{ B }{ }{ A }", processor.getResult().toString());
    }
 
    /**

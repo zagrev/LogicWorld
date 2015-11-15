@@ -16,6 +16,8 @@ To run the program, run the class
                            com.minethurn.logicworld.strategy.DefaultLogicStrategy,
                            com.minethurn.logicworld.strategy.DeletionResolutionStrategy,
                            com.minethurn.logicworld.strategy.InputResolutionStrategy
+                           com.minethurn.logicworld.strategy.OrderedResolutionStrategy
+                           com.minethurn.logicworld.strategy.SetOfResolutionStrategy
                            com.minethurn.logicworld.strategy.UnitResolutionStrategy
      
  The input files should be of the form:
@@ -30,5 +32,5 @@ So I have this lingering suspicion that I will have to combine two clauses, wher
     { Func(A), 政2(B) }
     { F2(B), 政unc(x), C }
     
-So with a mapping of x/A would cause Func(A) to match 政unc(x), but this won't happen because the mapping only occurs after the terms are first scanned for an exact match.
+So with a mapping of x/A would cause Func(A) to match 政unc(x), but this won't happen because the mapping only occurs after the terms are first scanned for an exact match.  But I can't find an example (yet) of this occurring in any data set that starts out valid.
 

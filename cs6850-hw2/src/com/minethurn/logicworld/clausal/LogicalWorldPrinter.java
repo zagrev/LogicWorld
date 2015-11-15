@@ -5,12 +5,60 @@ package com.minethurn.logicworld.clausal;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
+
+import com.minethurn.logicworld.processor.DerivationLine;
 
 /**
  *
  */
 public class LogicalWorldPrinter
 {
+   /**
+    * The output format for a premise line (with world for gamma)
+    */
+   private static final String LINE_FORMAT = "%-4d %-40s %s";
+   /**
+    * The output format for a premise line (with world for gamma)
+    */
+   private static final String DERIVED_LINE_FORMAT = "%-4d %-40s (%d, %d) %s";
+
+   /** a line counter */
+   private static int lineNumber;
+
+   /**
+    * write the world to the given output location
+    *
+    * @param out
+    *           the output to receive the world
+    * @param derivation
+    *           the derivation to print
+    * @throws IOException
+    *            if we cannot write the world out
+    */
+   public static void print(final Writer out, final List<DerivationLine> derivation) throws IOException
+   {
+      lineNumber = 1;
+      for (final DerivationLine line : derivation)
+      {
+         for (final LogicalClause c : line.getClauses())
+         {
+            final Integer num = Integer.valueOf(lineNumber++);
+            if (c.getType() == LogicalClauseType.DERIVED)
+            {
+               final Integer left = Integer.valueOf(line.getLeftIndex());
+               final Integer right = Integer.valueOf(line.getRightIndex());
+               out.write(String.format(DERIVED_LINE_FORMAT, num, c.toString(), left, right,
+                     line.getMapping() == null ? "" : line.getMapping().toString()));
+            }
+            else
+            {
+               out.write(String.format(LINE_FORMAT, num, c.toString(), c.getType()));
+            }
+         } // for each clause in derivation line
+      } // for each derivation line
+   }
+
    /**
     * write the clause to the given output
     *

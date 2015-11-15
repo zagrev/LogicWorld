@@ -4,13 +4,14 @@
 package com.minethurn.logicworld.strategy;
 
 import com.minethurn.logicworld.clausal.LogicalClause;
+import com.minethurn.logicworld.clausal.LogicalClauseType;
 
 /**
- * Unit resolution strategy say only use single unit rules to compare
+ * The set of resolution strategy requires that one of the two clauses to combine comes from the set of resolution
+ * (gamma) clauses, or a resolvent of the set of resolution clauses.
  */
-public class UnitResolutionStrategy extends LogicStrategyAdapter
+public class SetOfResolutionStrategy extends LogicStrategyAdapter
 {
-
    /*
     * (non-Javadoc)
     * @see com.minethurn.logicworld.strategy.LogicStrategyAdapter#getNextPrimaryClause()
@@ -20,8 +21,9 @@ public class UnitResolutionStrategy extends LogicStrategyAdapter
    {
       while (getCurrentClauseIndex() < getWorld().size())
       {
+         // only return clauses from the Gamma or Derived clauses
          final LogicalClause clause = getWorld().getClause(getCurrentClauseIndex());
-         if (clause.size() == 1)
+         if (clause.getType() != LogicalClauseType.DELTA)
          {
             return clause;
          }

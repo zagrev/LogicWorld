@@ -1,0 +1,18 @@
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="CONSOLE" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d %-5p %logger:%line %m%n" />
+        </Console>
+       <Async name="ASYNC">
+            <AppenderRef ref="CONSOLE" />
+        </Async>
+    </Appenders>
+    <Loggers>
+        <Logger name="com.minethurn" level="INFO" additivity="false">
+            <AppenderRef ref="ASYNC" />
+        </Logger>   
+        <Root level="ERROR">
+            <AppenderRef ref="ASYNC" />
+        </Root>
+    </Loggers>
+</Configuration>

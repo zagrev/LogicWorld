@@ -4,9 +4,11 @@
 package com.minethurn.logicworld.processor;
 
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 
 import org.apache.commons.cli.CommandLine;
@@ -15,6 +17,8 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.minethurn.logicworld.clausal.LogicalClause;
 import com.minethurn.logicworld.clausal.LogicalClauseType;
@@ -30,11 +34,6 @@ import com.minethurn.logicworld.strategy.ILogicStrategy;
 public class LogicProcessor
 {
    /**
-    * the output format for a derived line (with line number pairs)
-    */
-   private static final String DERIVED_FORMAT = "%-4d %-40s %d, %d";
-
-   /**
     * The maximum number of iterations for perform before stopping
     */
    private static final int MAX_COUNT = 100;
@@ -46,6 +45,7 @@ public class LogicProcessor
     *           the command line arguments
     * @throws IOException
     */
+   @SuppressWarnings("resource")
    public static void main(final String[] args) throws IOException
    {
       String deltaFile = "hw3delta.txt";
@@ -55,6 +55,8 @@ public class LogicProcessor
       boolean showUsage = false;
       boolean removeTautologies = false;
       boolean removePureLiterals = false;
+      String outputFilename = "";
+      Writer output = new OutputStreamWriter(System.out);
 
       final Options options = new Options();
       options.addOption("h", "help", false, "Show the usage help");
@@ -67,6 +69,7 @@ public class LogicProcessor
                   + "com.minethurn.logicworld.strategy.UnitResolutionStrategy");
       options.addOption("t", "rmTautology", false, "Remove tautologies before processing");
       options.addOption("l", "rmLiterals", false, "Remove pure literals before processing");
+      options.addOption("o", "output", true, "Location to contain the processing output");
 
       try
       {
@@ -97,6 +100,11 @@ public class LogicProcessor
          {
             removePureLiterals = true;
          }
+         if (cmdLine.hasOption("output"))
+         {
+            outputFilename = cmdLine.getOptionValue("output");
+            output = new FileWriter(outputFilename);
+         }
 
          final Class<?> cls = Class.forName(strategyClass);
          strategy = (ILogicStrategy) cls.newInstance();
@@ -121,6 +129,11 @@ public class LogicProcessor
          System.err.println("Strategy class not found: " + strategyClass);
          return;
       }
+      catch (final IOException e)
+      {
+         System.err.println("Cannot open output file = " + outputFilename);
+         return;
+      }
       if (showUsage)
       {
          final HelpFormatter formatter = new HelpFormatter();
@@ -139,19 +152,18 @@ public class LogicProcessor
          gamma = LogicalParser.parse(in, LogicalClauseType.GAMMA);
       }
 
-      final OutputStreamWriter output = new OutputStreamWriter(System.out);
-      output.write("Delta world:");
-      LogicalWorldPrinter.print(output, delta);
-      output.write("Gamma world:");
-      LogicalWorldPrinter.print(output, gamma);
-
       final LogicProcessor processor = new LogicProcessor(delta, gamma);
       processor.setStrategy(strategy);
       processor.setRemovePureLiterals(removePureLiterals);
       processor.setRemoveTautologies(removeTautologies);
 
       processor.process();
+
+      LogicalWorldPrinter.print(output, processor.getDerivation());
    }
+
+   /** the logger */
+   private final Logger logger = LogManager.getLogger(getClass());
 
    /** the base set of rules in the problem space */
    LogicalWorld delta;
@@ -272,16 +284,11 @@ public class LogicProcessor
       }
 
       DerivationLine newLine = strategy.step();
-      int count = delta.size() + gamma.size() + 1;
+      final int count = delta.size() + gamma.size() + 1;
       while (newLine != null && !newLine.getClauses().isEmpty() && count < MAX_COUNT)
       {
-         for (final LogicalClause c : newLine.getClauses())
-         {
-            System.out.println(String.format(DERIVED_FORMAT, Integer.valueOf(count++), c.toString(),
-                  Integer.valueOf(newLine.getLeftIndex() + 1), Integer.valueOf(newLine.getRightIndex() + 1)));
-         }
          derivation.add(newLine);
-
+         logger.info("Adding " + newLine);
          newLine = strategy.step();
       }
 

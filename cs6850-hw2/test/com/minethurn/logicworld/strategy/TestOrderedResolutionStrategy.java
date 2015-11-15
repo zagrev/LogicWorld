@@ -7,6 +7,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 
 import com.minethurn.logicworld.clausal.LogicalClause;
@@ -19,6 +21,9 @@ import com.minethurn.logicworld.processor.LogicProcessor;
  */
 public class TestOrderedResolutionStrategy
 {
+   /** the logger */
+   private final Logger logger = LogManager.getLogger(getClass());
+
    /**
     * @throws IOException
     */
@@ -36,16 +41,24 @@ public class TestOrderedResolutionStrategy
       processor.process();
 
       final LogicalWorld result = processor.getResult();
-// assertEquals(9, result.size());
+      logger.debug("result = " + result);
 
-      assertEquals("{ ¬A(x), B(x), D(x) }", result.getClause(0).toString());
-      assertEquals("{ ¬B(x), ¬C(x) }", result.getClause(1).toString());
-      assertEquals("{ A(x), B(x), C(x) }", result.getClause(2).toString());
-      assertEquals("{ B(x), C(x) }", result.getClause(3).toString());
+      int i = 0;
 
-      assertEquals("{ B(x), C(x), D(x) }", result.getClause(4).toString());
-      assertEquals("{ }", result.getClause(5).toString());
-      assertEquals("{ D(x) }", result.getClause(6).toString());
+      // delta
+      assertEquals("{ ¬A(x), B(x), D(x) }", result.getClause(i++).toString());
+      assertEquals("{ ¬B(x), ¬C(x) }", result.getClause(i++).toString());
+
+      // gamma
+      assertEquals("{ A(x), B(x), C(x) }", result.getClause(i++).toString());
+      assertEquals("{ B(x), C(x) }", result.getClause(i++).toString());
+
+      // derived
+      assertEquals("{ B(x), C(x), D(x) }", result.getClause(i++).toString());
+      assertEquals("{ }", result.getClause(i++).toString());
+      assertEquals("{ D(x) }", result.getClause(i++).toString());
+
+      assertEquals(7, result.size());
    }
 
    /**
@@ -65,15 +78,23 @@ public class TestOrderedResolutionStrategy
       processor.process();
 
       final LogicalWorld result = processor.getResult();
-      assertEquals(7, result.size());
+      logger.debug("result = " + result);
 
-      assertEquals("{ ¬A(x), B(x), D(x) }", result.getClause(0).toString());
-      assertEquals("{ B(x), C(x) }", result.getClause(1).toString());
-      assertEquals("{ A(x), B(x), C(x) }", result.getClause(2).toString());
-      assertEquals("{ ¬B(x), ¬C(x) }", result.getClause(3).toString());
-      assertEquals("{ B(x), C(x), D(x) }", result.getClause(4).toString());
-      assertEquals("{ }", result.getClause(5).toString());
-      assertEquals("{ D(x) }", result.getClause(6).toString());
+      int i = 0;
+      // delta
+      assertEquals("{ ¬A(x), B(x), D(x) }", result.getClause(i++).toString());
+      assertEquals("{ B(x), C(x) }", result.getClause(i++).toString());
+
+      // gamma
+      assertEquals("{ A(x), B(x), C(x) }", result.getClause(i++).toString());
+      assertEquals("{ ¬B(x), ¬C(x) }", result.getClause(i++).toString());
+
+      // dervied
+      assertEquals("{ B(x), C(x), D(x) }", result.getClause(i++).toString());
+      assertEquals("{ }", result.getClause(i++).toString());
+      assertEquals("{ D(x) }", result.getClause(i++).toString());
+
+      assertEquals(7, result.size());
    }
 
    /**
@@ -93,8 +114,7 @@ public class TestOrderedResolutionStrategy
       processor.process();
 
       final LogicalWorld result = processor.getResult();
-      System.out.println("testBasic result: " + result);
-      assertEquals(3, result.size());
+      logger.debug("testBasic result: " + result);
 
       LogicalClause clause = result.getClause(1);
       assertEquals("¬A(x)", clause.get(0).toString());
@@ -105,6 +125,8 @@ public class TestOrderedResolutionStrategy
       assertEquals("B(x)", clause.get(0).toString());
       assertEquals("C(x)", clause.get(1).toString());
       assertEquals("D(x)", clause.get(2).toString());
+
+      assertEquals(3, result.size());
    }
 
    /**

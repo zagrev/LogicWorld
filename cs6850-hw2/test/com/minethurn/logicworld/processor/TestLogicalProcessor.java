@@ -7,6 +7,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 
 import com.minethurn.logicworld.clausal.LogicalParser;
@@ -19,6 +21,9 @@ import com.minethurn.logicworld.strategy.ILogicStrategy;
  */
 public class TestLogicalProcessor
 {
+   /** the logger */
+   private final Logger logger = LogManager.getLogger(getClass());
+
    /**
     * @throws IOException
     */
@@ -32,8 +37,13 @@ public class TestLogicalProcessor
       processor.setStrategy(new DefaultLogicStrategy());
       processor.process();
 
-      assertEquals("should have a single clause", 3, processor.getResult().size());
-      assertEquals("world should be \"{  }\"", "{ }", processor.getResult().getClause(2).toString());
+      final LogicalWorld world = processor.getResult();
+      int i = 0;
+      assertEquals("{ A }", world.getClause(i++).toString());
+      assertEquals("{ ¬A }", world.getClause(i++).toString());
+      assertEquals("{ }", world.getClause(i++).toString());
+
+      assertEquals("should have a single clause", 3, world.size());
    }
 
    /**
@@ -49,8 +59,14 @@ public class TestLogicalProcessor
       processor.setStrategy(new DefaultLogicStrategy());
       processor.process();
 
-      assertEquals("should have a single clause", 3, processor.getResult().size());
-      assertEquals("world should be \"{  }\"", "{ Q }", processor.getResult().getClause(2).toString());
+      int i = 0;
+      final LogicalWorld world = processor.getResult();
+      logger.debug("World = " + world);
+
+      assertEquals("{ P, Q }", world.getClause(i++).toString());
+      assertEquals("{ ¬P }", world.getClause(i++).toString());
+      assertEquals("{ Q }", world.getClause(i++).toString());
+      assertEquals("should have a single clause", 3, world.size());
    }
 
    /**
@@ -66,8 +82,15 @@ public class TestLogicalProcessor
       processor.setStrategy(new DefaultLogicStrategy());
       processor.process();
 
-      assertEquals("should have a single clause", 3, processor.getResult().size());
-      assertEquals("world should be \"{  }\"", "{ P }", processor.getResult().getClause(2).toString());
+      int i = 0;
+      final LogicalWorld world = processor.getResult();
+      logger.debug("result = " + world);
+
+      assertEquals("{ P, Q }", world.getClause(i++).toString());
+      assertEquals("{ ¬Q }", world.getClause(i++).toString());
+      assertEquals("{ P }", world.getClause(i++).toString());
+
+      assertEquals(3, world.size());
    }
 
    /**
@@ -85,6 +108,32 @@ public class TestLogicalProcessor
 
       assertEquals("should have a single clause", 2, processor.getResult().size());
       assertEquals("world should be \"{ A }\"", "{ A }", processor.getResult().getClause(0).toString());
+   }
+
+   /**
+    * @throws IOException
+    */
+   @Test
+   public void testDefaultStrategyMappingPrimary() throws IOException
+   {
+      final LogicalWorld delta = LogicalParser.parse("{ Func(x,y), ¬Bad(x,y) }");
+      final LogicalWorld gamma = LogicalParser.parse("{ ¬Func(A,B), C }{ Bad(A,B) }");
+
+      final LogicProcessor processor = new LogicProcessor(delta, gamma);
+      processor.setStrategy(new DefaultLogicStrategy());
+      processor.process();
+
+      int i = 0;
+      assertEquals("{ Func(x,y), ¬Bad(x,y) }", processor.getResult().getClause(i++).toString());
+      assertEquals("{ ¬Func(A,B), C }", processor.getResult().getClause(i++).toString());
+      assertEquals("{ Bad(A,B) }", processor.getResult().getClause(i++).toString());
+
+      assertEquals("{ ¬Bad(A,B), C }", processor.getResult().getClause(i++).toString());
+      assertEquals("{ Func(A,B) }", processor.getResult().getClause(i++).toString());
+      assertEquals("{ C, ¬Bad(A,B) }", processor.getResult().getClause(i++).toString());
+      assertEquals("{ C }", processor.getResult().getClause(i++).toString());
+
+      assertEquals(7, processor.getResult().size());
    }
 
    /**

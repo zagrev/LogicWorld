@@ -6,12 +6,17 @@ package com.minethurn.logicworld.strategy;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.minethurn.logicworld.clausal.LogicalClause;
 import com.minethurn.logicworld.clausal.LogicalFunction;
 import com.minethurn.logicworld.clausal.LogicalMapping;
 import com.minethurn.logicworld.clausal.LogicalUnit;
 import com.minethurn.logicworld.clausal.LogicalVariable;
 import com.minethurn.logicworld.clausal.LogicalWorld;
+import com.minethurn.logicworld.processor.DerivationLine;
 import com.minethurn.logicworld.processor.PureLiteralRemoval;
 import com.minethurn.logicworld.processor.TautologyRemoval;
 
@@ -20,22 +25,30 @@ import com.minethurn.logicworld.processor.TautologyRemoval;
  */
 public abstract class LogicStrategyAdapter implements ILogicStrategy
 {
-   /**
-    * The output format for a premise line (with delta for gamma)
-    */
-   private static final String LINE_FORMAT = "%-4d %-40s %s";
+
+   /** the logger */
+   private final Logger logger = LogManager.getLogger(getClass());
+
    /** the base clauses of the logical world */
-   private LogicalWorld delta;
-   /** the refutation clauses of the logical world */
-   private LogicalWorld gamma;
+   private LogicalWorld world;
 
    /** whether we should remove pure literals before processing */
    private boolean removePureLiterals = false;
 
    /** whether we should remove tautologies before processing */
    private boolean removeTautologies = false;
+
    /** the mapping to use between the current clause and the other clause */
    protected LogicalMapping currentMapping;
+
+   /** the current clause we are checking */
+   private int currentClauseIndex;
+
+   /** the other clause we compare to the current clause */
+   private int otherClauseIndex;
+
+   /** the current unit we are comparing */
+   private int currentUnitIndex;
 
    /**
     * @param currentClause
@@ -118,7 +131,7 @@ public abstract class LogicStrategyAdapter implements ILogicStrategy
     * @return a logical mapping between the two clauses, if one exists. This may return an empty mapping, in which case
     *         no mapping is available.
     */
-   public LogicalMapping findMapping(final LogicalClause a, final LogicalClause b, final LogicalUnit toMap)
+   protected LogicalMapping findMapping(final LogicalClause a, final LogicalClause b, final LogicalUnit toMap)
    {
       final LogicalMapping mapping = new LogicalMapping();
       final ArrayList<String> variables = new ArrayList<>();
@@ -136,7 +149,7 @@ public abstract class LogicStrategyAdapter implements ILogicStrategy
             if (u instanceof LogicalVariable && !((LogicalVariable) u).isEntity() && entities.size() > 0)
             {
                mapping.put(u.getName(), entities.remove(0));
-               variables.remove(u);
+               variables.remove(u.getName());
             }
          }
       }
@@ -151,19 +164,134 @@ public abstract class LogicStrategyAdapter implements ILogicStrategy
    }
 
    /**
-    * @return the delta
+    * find the next complementary clause to the given unit
+    *
+    * @param unitToMatch
+    *           the unit for which to find the complement, or a mapped complement
+    * @return the clause which represents the complement to the given unit, or {@code null} if there are no matches
     */
-   public LogicalWorld getDelta()
+   protected LogicalClause findNextComplementaryClause(final LogicalUnit unitToMatch)
    {
-      return delta;
+      final LogicalWorld curWorld = getWorld();
+      while (otherClauseIndex < curWorld.size())
+      {
+         LogicalClause otherClause = curWorld.getClause(otherClauseIndex);
+         otherClauseIndex++;
+
+         if (otherClause.size() > 0)
+         {
+            for (final LogicalUnit otherUnit : otherClause)
+            {
+               // if we found an exact match, we are done here
+               if (unitToMatch.complement(otherUnit))
+               {
+                  return otherClause;
+               }
+            }
+
+            // no exact matches, can we find a mapping?
+            if (unitToMatch instanceof LogicalFunction
+                  || unitToMatch instanceof LogicalVariable && !((LogicalVariable) unitToMatch).isEntity())
+            {
+               currentMapping = findMapping(curWorld.getClause(currentClauseIndex), otherClause, unitToMatch);
+               if (currentMapping != null && currentMapping.size() > 0)
+               {
+                  otherClause = otherClause.map(currentMapping);
+                  for (final LogicalUnit otherUnit : otherClause)
+                  {
+                     // if we found an exact match, we are done here
+                     if (unitToMatch.complement(otherUnit))
+                     {
+                        return otherClause;
+                     }
+                  } // for each logical unit in mapped clause
+               } // if there is a mapping
+            } // if the clause is not empty
+         }
+      } // while there are more clauses to try
+
+      otherClauseIndex = 0;
+      return null;
    }
 
    /**
-    * @return the gamma
+    * @return the currentClauseIndex
     */
-   public LogicalWorld getGamma()
+   public int getCurrentClauseIndex()
    {
-      return gamma;
+      return currentClauseIndex;
+   }
+
+   /**
+    * @return the currentMapping
+    */
+   public LogicalMapping getCurrentMapping()
+   {
+      return currentMapping;
+   }
+
+   /**
+    * @return the currentUnitIndex
+    */
+   public int getCurrentUnitIndex()
+   {
+      return currentUnitIndex;
+   }
+
+   /**
+    * return the next primary clause we should compare
+    *
+    * @return the next clause to compare, or {@code null} if no clauses left to process
+    */
+   protected LogicalClause getNextPrimaryClause()
+   {
+      if (getCurrentClauseIndex() < getWorld().size())
+      {
+         return getWorld().getClause(getCurrentClauseIndex());
+      }
+
+      // no reset for primary clause index. We are done at this point.
+      return null;
+   }
+
+   /**
+    * return the next term we should check against all the other clauses
+    *
+    * @param primaryClause
+    * @return the next primary clause to return
+    */
+   protected LogicalUnit getNextPrimaryTerm(final LogicalClause primaryClause)
+   {
+      if (getCurrentUnitIndex() < primaryClause.size())
+      {
+         return primaryClause.get(getCurrentUnitIndex());
+      }
+
+      setCurrentUnitIndex(0);
+      resetSecondaryClauseIndex();
+      return null;
+   }
+
+   /**
+    * @return the next secondary clause to check
+    */
+   protected LogicalClause getNextSecondaryClause()
+   {
+      if (getOtherClauseIndex() < getWorld().size())
+      {
+         return getWorld().getClause(getOtherClauseIndex());
+      }
+
+      resetSecondaryClauseIndex();
+      return null;
+   }
+
+   /**
+    * @return the otherClauseIndex
+    */
+   public int getOtherClauseIndex()
+   {
+      return otherClauseIndex;
    }
 
    /*
@@ -174,9 +302,40 @@ public abstract class LogicStrategyAdapter implements ILogicStrategy
    public LogicalWorld getResult()
    {
       final LogicalWorld w = new LogicalWorld();
-      w.getClauses().addAll(getDelta().getClauses());
-      w.getClauses().addAll(getGamma().getClauses());
-      return getDelta();
+      w.getClauses().addAll(getWorld().getClauses());
+      return w;
+   }
+
+   /**
+    * @return the world
+    */
+   public LogicalWorld getWorld()
+   {
+      return world;
+   }
+
+   /**
+    *
+    */
+   protected void incrementPrimaryClauseIndex()
+   {
+      setCurrentClauseIndex(getCurrentClauseIndex() + 1);
+   }
+
+   /**
+    *
+    */
+   protected void incrementPrimaryUnitIndex()
+   {
+      setCurrentUnitIndex(getCurrentUnitIndex() + 1);
+   }
+
+   /**
+    *
+    */
+   protected void incrementSecondaryClauseIndex()
+   {
+      setOtherClauseIndex(getOtherClauseIndex() + 1);
    }
 
    /*
@@ -187,29 +346,21 @@ public abstract class LogicStrategyAdapter implements ILogicStrategy
    @Override
    public void initialize(final LogicalWorld base, final LogicalWorld refutation)
    {
-      delta = new LogicalWorld();
-      delta.addAll(base.getClauses());
+      currentClauseIndex = 0;
+      otherClauseIndex = 0;
+      currentUnitIndex = 0;
 
-      gamma = new LogicalWorld();
-      gamma.addAll(refutation.getClauses());
+      world = new LogicalWorld();
+      world.addAll(base.getClauses());
+      world.addAll(refutation.getClauses());
 
       if (removePureLiterals)
       {
-         PureLiteralRemoval.removePureLiterals(delta);
+         PureLiteralRemoval.removePureLiterals(world);
       }
       if (removeTautologies)
       {
-         TautologyRemoval.removeTautologies(delta);
-      }
-
-      int count = 1;
-      for (final LogicalClause d : delta)
-      {
-         System.out.println(String.format(LINE_FORMAT, Integer.valueOf(count++), d.toString(), "D"));
-      }
-      for (final LogicalClause d : gamma)
-      {
-         System.out.println(String.format(LINE_FORMAT, Integer.valueOf(count++), d.toString(), "G"));
+         TautologyRemoval.removeTautologies(world);
       }
    }
 
@@ -232,16 +383,14 @@ public abstract class LogicStrategyAdapter implements ILogicStrategy
    /**
     * check the world for any clauses that are identical to the given clause
     *
-    * @param world
-    *           the set of clauses to check
     * @param clauseToCheck
     *           the clause to check
     * @return {@code true} if the clause doesn't already exist in the given world, or {@code false} otherwise
     */
-   protected boolean isUnique(final LogicalWorld world, final LogicalClause clauseToCheck)
+   protected boolean isUnique(final LogicalClause clauseToCheck)
    {
       // only add units to the derivation if they don't already exist
-      for (final LogicalClause derived : world)
+      for (final LogicalClause derived : getWorld())
       {
          if (clauseToCheck.equals(derived))
          {
@@ -252,21 +401,47 @@ public abstract class LogicStrategyAdapter implements ILogicStrategy
    }
 
    /**
-    * @param delta
-    *           the delta to set
+    * override this method to change what the default initial value of the secondary clause index
     */
-   public void setDelta(final LogicalWorld delta)
+   protected void resetSecondaryClauseIndex()
    {
-      this.delta = delta;
+      setOtherClauseIndex(getCurrentClauseIndex() + 1);
    }
 
    /**
-    * @param gamma
-    *           the gamma to set
+    * @param currentClauseIndex
+    *           the currentClauseIndex to set
     */
-   public void setGamma(final LogicalWorld gamma)
+   public void setCurrentClauseIndex(final int currentClauseIndex)
    {
-      this.gamma = gamma;
+      this.currentClauseIndex = currentClauseIndex;
+   }
+
+   /**
+    * @param currentMapping
+    *           the currentMapping to set
+    */
+   public void setCurrentMapping(final LogicalMapping currentMapping)
+   {
+      this.currentMapping = currentMapping;
+   }
+
+   /**
+    * @param currentUnitIndex
+    *           the currentUnitIndex to set
+    */
+   public void setCurrentUnitIndex(final int currentUnitIndex)
+   {
+      this.currentUnitIndex = currentUnitIndex;
+   }
+
+   /**
+    * @param otherClauseIndex
+    *           the otherClauseIndex to set
+    */
+   public void setOtherClauseIndex(final int otherClauseIndex)
+   {
+      this.otherClauseIndex = otherClauseIndex;
    }
 
    /**
@@ -288,18 +463,27 @@ public abstract class LogicStrategyAdapter implements ILogicStrategy
    }
 
    /**
+    * @param initial
+    *           the world to set
+    */
+   public void setWorld(final LogicalWorld initial)
+   {
+      this.world = initial;
+   }
+
+   /**
     * @param a
     * @param variables
     * @param entities
     */
-   private void splitVariables(final LogicalClause a, final ArrayList<String> variables,
+   protected void splitVariables(final LogicalClause a, final ArrayList<String> variables,
          final ArrayList<String> entities)
    {
       for (final LogicalUnit u : a)
       {
          if (u instanceof LogicalVariable)
          {
-            String name = u.getName();
+            final String name = u.getName();
             if (((LogicalVariable) u).isEntity())
             {
                if (!entities.contains(name))
@@ -316,7 +500,7 @@ public abstract class LogicStrategyAdapter implements ILogicStrategy
          {
             for (final LogicalVariable v : ((LogicalFunction) u).getVariables())
             {
-               String name = v.getName();
+               final String name = v.getName();
                if (v.isEntity())
                {
                   if (!entities.contains(name))
@@ -332,4 +516,66 @@ public abstract class LogicStrategyAdapter implements ILogicStrategy
          }
       }
    }
+
+   /**
+    * The adapter iterates over the every unit in every clause, finds a complementary unit, and then combines them.
+    * Derived classes can override {@link #findNextComplementaryClause(LogicalUnit)} to change how it finds the
+    * complementary term.
+    */
+   @Override
+   public DerivationLine step()
+   {
+      LogicalClause primaryClause;
+      LogicalClause secondaryClause;
+      LogicalUnit primaryUnit;
+
+      while ((primaryClause = getNextPrimaryClause()) != null)
+      {
+         while ((primaryUnit = getNextPrimaryTerm(primaryClause)) != null)
+         {
+            logger.printf(Level.INFO, "primary unit = (%d) %s => %s", Integer.valueOf(getCurrentClauseIndex() + 1),
+                  primaryClause, primaryUnit);
+            while ((secondaryClause = getNextSecondaryClause()) != null)
+            {
+               logger.printf(Level.DEBUG, "  secondaryClause = (%d) %s", Integer.valueOf(getOtherClauseIndex() + 1),
+                     secondaryClause);
+               incrementSecondaryClauseIndex();
+
+               currentMapping = findMapping(primaryClause, secondaryClause, primaryUnit);
+
+               final LogicalClause mappedPrimary = primaryClause.map(currentMapping);
+               final LogicalClause mappedSecondary = secondaryClause.map(currentMapping);
+
+               primaryUnit = getNextPrimaryTerm(mappedPrimary);
+               logger.printf(Level.DEBUG, "  mapped primary unit = (%d) %s => %s",
+                     Integer.valueOf(getCurrentClauseIndex() + 1), mappedPrimary, primaryUnit);
+
+               for (final LogicalUnit secondaryUnit : mappedSecondary)
+               {
+                  logger.printf(Level.DEBUG, "  mapped secondary unit = (%d) %s => %s",
+                        Integer.valueOf(getOtherClauseIndex()), mappedSecondary, secondaryUnit);
+
+                  if (primaryUnit.complement(secondaryUnit))
+                  {
+                     final LogicalClause derived = combine(mappedPrimary, mappedSecondary, currentMapping);
+                     if (isUnique(derived))
+                     {
+                        final DerivationLine derivedLine = new DerivationLine(derived, getCurrentClauseIndex(),
+                              getOtherClauseIndex() - 1);
+
+                        getWorld().add(derived);
+                        return derivedLine;
+                     }
+                     logger.debug("    duplicate");
+                  }
+               } // for each unit in the secondary clause
+            }
+            incrementPrimaryUnitIndex();
+         } // while there are more secondary clauses to check
+         incrementPrimaryClauseIndex();
+      } // while more primary clauses to check
+
+      return null;
+   }
+
 }

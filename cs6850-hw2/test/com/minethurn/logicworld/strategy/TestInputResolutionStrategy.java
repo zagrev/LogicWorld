@@ -7,6 +7,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 
 import com.minethurn.logicworld.clausal.LogicalClauseType;
@@ -19,6 +21,9 @@ import com.minethurn.logicworld.processor.LogicProcessor;
  */
 public class TestInputResolutionStrategy
 {
+   /** the logger */
+   private final Logger logger = LogManager.getLogger(getClass());
+
    /**
     *
     */
@@ -54,22 +59,29 @@ public class TestInputResolutionStrategy
 
       processor.process();
       final LogicalWorld result = processor.getResult();
-      System.out.println("result = " + result);
+      logger.debug("result = " + result);
 
-// assertEquals(7, result.size());
       int i = 0;
+      // delta
       assertEquals("{ ¬Func(A,C), B }", result.getClause(i++).toString());
       assertEquals("{ C, D }", result.getClause(i++).toString());
+
+      // gamma
       assertEquals("{ ¬D }", result.getClause(i++).toString());
       assertEquals("{ ¬B }", result.getClause(i++).toString());
       assertEquals("{ Func(x,y), ¬y }", result.getClause(i++).toString());
       assertEquals("{ Func(x,y), ¬x }", result.getClause(i++).toString());
 
+      // derived
       assertEquals("{ B, ¬C }", result.getClause(i++).toString());
       assertEquals("{ B, ¬A }", result.getClause(i++).toString());
       assertEquals("{ ¬Func(A,C) }", result.getClause(i++).toString());
+      assertEquals("{ D, Func(C,D) }", result.getClause(i++).toString());
       assertEquals("{ D, B }", result.getClause(i++).toString());
       assertEquals("{ C }", result.getClause(i++).toString());
+      assertEquals("{ C, Func(C,D) }", result.getClause(i++).toString());
+
+      assertEquals(13, result.size());
    }
 
    /**
@@ -108,7 +120,7 @@ public class TestInputResolutionStrategy
 
       processor.process();
       final LogicalWorld result = processor.getResult();
-      System.out.println("result = " + result);
+      logger.debug("result = " + result);
 
       assertEquals(7, result.size());
       assertEquals("{ A, B }", result.getClause(0).toString());
@@ -137,7 +149,7 @@ public class TestInputResolutionStrategy
 
       processor.process();
       final LogicalWorld result = processor.getResult();
-      System.out.println("result = " + result);
+      logger.debug("result = " + result);
 
 // assertEquals(7, result.size());
       int i = 0;
