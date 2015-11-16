@@ -1,21 +1,9 @@
-{ ¬T(A), ¬Town(A)}
+{ ¬T(A), ¬Town(A) } 
 { ¬T(A), ¬Key(A) }
-{ ¬T(A), ¬K(A) }
-{ K(A) }
 { ¬T(B), Key(C) }
-{ ¬T(B), K(B) }
 { ¬T(C), ¬Key(C) }
-{ ¬T(C), ¬K(C) }
-{ ¬T(D), Key(B) }
-{ ¬T(D), K(B) }
 { ¬T(D), Town(D) }
 { ¬T(D), Town(B) }
-{ Friend(A,D) }
+{ Town(A) }
+{ Town(D) }
 { ¬Like(B,C) }
-{ ¬Friend(x,y), Like(x,y) }
-{ ¬Like(x,y), Like(y,x) }
-{ Like(x,y), ¬Friend(x,y) }
-{ ¬Lunch(x,y), Town(x) }
-{ ¬Lunch(x,y), Town(y) }
-{ ¬Ans(x), Key(x)}
-{ ¬Ans(x), Town(x) }

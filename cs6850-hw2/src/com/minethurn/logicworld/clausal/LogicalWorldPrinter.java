@@ -17,11 +17,11 @@ public class LogicalWorldPrinter
    /**
     * The output format for a premise line (with world for gamma)
     */
-   private static final String LINE_FORMAT = "%-4d %-40s %s";
+   private static final String LINE_FORMAT = "%d\t%s\t%s\n";
    /**
     * The output format for a premise line (with world for gamma)
     */
-   private static final String DERIVED_LINE_FORMAT = "%-4d %-40s (%d, %d) %s";
+   private static final String DERIVED_LINE_FORMAT = "%d\t%s\t(%d, %d) %s\n";
 
    /** a line counter */
    private static int lineNumber;

@@ -8,7 +8,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 
 import org.apache.commons.cli.CommandLine;
@@ -36,7 +35,7 @@ public class LogicProcessor
    /**
     * The maximum number of iterations for perform before stopping
     */
-   private static final int MAX_COUNT = 100;
+   private static final int MAX_COUNT = 200;
 
    /**
     * start up a logical derivedWorld
@@ -45,7 +44,6 @@ public class LogicProcessor
     *           the command line arguments
     * @throws IOException
     */
-   @SuppressWarnings("resource")
    public static void main(final String[] args) throws IOException
    {
       String deltaFile = "hw3delta.txt";
@@ -55,8 +53,7 @@ public class LogicProcessor
       boolean showUsage = false;
       boolean removeTautologies = false;
       boolean removePureLiterals = false;
-      String outputFilename = "";
-      Writer output = new OutputStreamWriter(System.out);
+      String outputFilename = null;
 
       final Options options = new Options();
       options.addOption("h", "help", false, "Show the usage help");
@@ -103,7 +100,6 @@ public class LogicProcessor
          if (cmdLine.hasOption("output"))
          {
             outputFilename = cmdLine.getOptionValue("output");
-            output = new FileWriter(outputFilename);
          }
 
          final Class<?> cls = Class.forName(strategyClass);
@@ -129,11 +125,7 @@ public class LogicProcessor
          System.err.println("Strategy class not found: " + strategyClass);
          return;
       }
-      catch (final IOException e)
-      {
-         System.err.println("Cannot open output file = " + outputFilename);
-         return;
-      }
+
       if (showUsage)
       {
          final HelpFormatter formatter = new HelpFormatter();
@@ -159,7 +151,21 @@ public class LogicProcessor
 
       processor.process();
 
-      LogicalWorldPrinter.print(output, processor.getDerivation());
+      if (outputFilename == null)
+      {
+         try (OutputStreamWriter output = new OutputStreamWriter(System.out))
+         {
+            LogicalWorldPrinter.print(output, processor.getDerivation());
+         }
+      }
+      else
+      {
+         try (FileWriter output = new FileWriter(outputFilename))
+         {
+            LogicalWorldPrinter.print(output, processor.getDerivation());
+         }
+      }
+
    }
 
    /** the logger */
@@ -284,12 +290,14 @@ public class LogicProcessor
       }
 
       DerivationLine newLine = strategy.step();
-      final int count = delta.size() + gamma.size() + 1;
+      int count = delta.size() + gamma.size() + 1;
       while (newLine != null && !newLine.getClauses().isEmpty() && count < MAX_COUNT)
       {
          derivation.add(newLine);
          logger.info("Adding " + newLine);
          newLine = strategy.step();
+
+         count++;
       }
 
       strategy.finalize(delta, gamma);

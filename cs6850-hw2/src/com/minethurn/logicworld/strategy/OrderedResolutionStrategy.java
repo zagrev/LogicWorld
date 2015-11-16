@@ -87,6 +87,16 @@ public class OrderedResolutionStrategy extends LogicStrategyAdapter
       refutation.setClauses(g.getClauses());
    }
 
+   /*
+    * (non-Javadoc)
+    * @see com.minethurn.logicworld.strategy.LogicStrategyAdapter#resetSecondaryClauseIndex()
+    */
+   @Override
+   protected void resetSecondaryClauseIndex()
+   {
+      setOtherClauseIndex(0);
+   }
+
    /**
     * @param c
     * @return a new clause with the units sorted
@@ -100,6 +110,8 @@ public class OrderedResolutionStrategy extends LogicStrategyAdapter
          queue.add(u);
       }
       final LogicalClause newclause = new LogicalClause();
+      newclause.setType(c.getType());
+
       while (!queue.isEmpty())
       {
          newclause.add(queue.remove());

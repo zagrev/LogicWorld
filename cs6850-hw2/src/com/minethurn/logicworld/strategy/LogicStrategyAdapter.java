@@ -560,8 +560,12 @@ public abstract class LogicStrategyAdapter implements ILogicStrategy
                      final LogicalClause derived = combine(mappedPrimary, mappedSecondary, currentMapping);
                      if (isUnique(derived))
                      {
-                        final DerivationLine derivedLine = new DerivationLine(derived, getCurrentClauseIndex(),
-                              getOtherClauseIndex() - 1);
+                        final DerivationLine derivedLine = new DerivationLine(derived, getCurrentClauseIndex() + 1,
+                              getOtherClauseIndex());
+                        if (currentMapping != null && currentMapping.size() > 0)
+                        {
+                           derivedLine.setMapping(currentMapping);
+                        }
 
                         getWorld().add(derived);
                         return derivedLine;
